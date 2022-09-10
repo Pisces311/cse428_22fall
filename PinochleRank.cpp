@@ -9,7 +9,7 @@
 PinochleDeck::PinochleDeck() {
     for (size_t i = 0; i < 2; i++) {
         for (Suit j = Suit::clubs; j <= Suit::spades; ++j) {
-            for (PinochleRank k = PinochleRank::nine; k < PinochleRank::ace; ++k) {
+            for (PinochleRank k = PinochleRank::nine; k <= PinochleRank::ace; ++k) {
                 PinochleDeck::cards.push_back(Card<PinochleRank, Suit>(k, j));
             }
         }
