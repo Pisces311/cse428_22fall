@@ -1,4 +1,4 @@
-#include "PinochleRank.h"
+#include "PinochleDeck.h"
 #include "Deck.h"
 #include "Card.h"
 #include "Suit.h"
