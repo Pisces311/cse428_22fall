@@ -1,8 +1,8 @@
-#include <Suit.h>
+#include "Suit.h"
 
 #include <iostream>
 
-std::ostream& operator<<(std::ostream& os, Suit suit) {
+std::ostream& operator<<(std::ostream& os, const Suit& suit) {
     switch (suit) {
         case Suit::clubs:
             os << "C";
