@@ -1,15 +1,15 @@
 #pragma once
 
-enum class Rank { nine, jack, queen, king, ten, ace, undefined };
+enum class PinochleRank { nine, jack, queen, king, ten, ace, undefined };
 
 class PinochleDeck : public Deck {
     public:
         PinochleDeck(){};
         void print(std::ostream& os){};
     private:
-        std::vector< Card<Rank, Suit> > cards;
+        std::vector< Card<PinochleRank, Suit> > cards;
 };
 
-std::ostream& operator<<(std::ostream& os, const Rank& rank);
+std::ostream& operator<<(std::ostream& os, const PinochleRank& rank);
 
-Rank& operator++(Rank& rank);
+PinochleRank& operator++(PinochleRank& rank);
