@@ -9,53 +9,53 @@
 PinochleDeck::PinochleDeck() {
     for (size_t i = 0; i < 2; i++) {
         for (Suit j = Suit::clubs; j <= Suit::spades; ++j) {
-            for (Rank k = Rank::nine; k < Rank::ace; ++k) {
-                PinochleDeck::cards.push_back(Card<Rank, Suit>(k, j));
+            for (PinochleRank k = PinochleRank::nine; k < PinochleRank::ace; ++k) {
+                PinochleDeck::cards.push_back(Card<PinochleRank, Suit>(k, j));
             }
         }
     }
 }
 
 void PinochleDeck::print(std::ostream& os) {
-    for (Card<Rank, Suit> card : PinochleDeck::cards) {
+    for (Card<PinochleRank, Suit> card : PinochleDeck::cards) {
         os << card << " ";
-        if (card.rank == Rank::ace) os << std::endl;
+        if (card.rank == PinochleRank::ace) os << std::endl;
     }
 }
 
-std::ostream& operator<<(std::ostream& os, const Rank& rank) {
+std::ostream& operator<<(std::ostream& os, const PinochleRank& rank) {
     switch (rank) {
-        case Rank::nine:
+        case PinochleRank::nine:
             os << "9";
             break;
-        case Rank::jack:
+        case PinochleRank::jack:
             os << "J";
             break;   
-        case Rank::queen:
+        case PinochleRank::queen:
             os << "Q";
             break;
-        case Rank::king:
+        case PinochleRank::king:
             os << "K";
             break;
-        case Rank::ten:
+        case PinochleRank::ten:
             os << "10";
             break;
-        case Rank::ace:
+        case PinochleRank::ace:
             os << "A";
             break;
-        case Rank::undefined:
+        case PinochleRank::undefined:
             os << "?";
             break;
     }
     return os;
 }
 
-Rank& operator++(Rank& rank) {
+PinochleRank& operator++(PinochleRank& rank) {
     switch (rank) {
-        case Rank::undefined:
+        case PinochleRank::undefined:
             break;
         default:
-            rank = Rank(static_cast<int>(rank) + 1);
+            rank = PinochleRank(static_cast<int>(rank) + 1);
             break;
     }
 }
