@@ -16,14 +16,14 @@ PinochleDeck::PinochleDeck() {
     }
 }
 
-void PinochleDeck::print(std::ostream& os) {
+void PinochleDeck::print(ostream& os) {
     for (Card<PinochleRank, Suit> card : PinochleDeck::cards) {
         os << card << " ";
-        if (card.rank == PinochleRank::ace) os << std::endl;
+        if (card.rank == PinochleRank::ace) os << endl;
     }
 }
 
-std::ostream& operator<<(std::ostream& os, const PinochleRank& rank) {
+ostream& operator<<(ostream& os, const PinochleRank& rank) {
     switch (rank) {
         case PinochleRank::nine:
             os << "9";
@@ -58,4 +58,5 @@ PinochleRank& operator++(PinochleRank& rank) {
             rank = PinochleRank(static_cast<int>(rank) + 1);
             break;
     }
+    return rank;
 }

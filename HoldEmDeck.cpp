@@ -14,14 +14,14 @@ HoldEmDeck::HoldEmDeck() {
     }
 }
 
-void HoldEmDeck::print(std::ostream& os) {
+void HoldEmDeck::print(ostream& os) {
     for (Card<HoldEmRank, Suit> card : HoldEmDeck::cards) {
         os << card << " ";
-        if (card.rank == HoldEmRank::ace) os << std::endl;
+        if (card.rank == HoldEmRank::ace) os << endl;
     }
 }
 
-std::ostream& operator<<(std::ostream& os, const HoldEmRank& rank) {
+ostream& operator<<(std::ostream& os, const HoldEmRank& rank) {
     switch (rank) {
         case HoldEmRank::two:
             os << "2";
@@ -77,4 +77,5 @@ HoldEmRank& operator++(HoldEmRank& rank) {
             rank = HoldEmRank(static_cast<int>(rank) + 1);
             break;
     }
+    return rank;
 }

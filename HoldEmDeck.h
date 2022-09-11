@@ -1,15 +1,22 @@
 #pragma once
+#include <iostream>
+#include <vector>
+#include "Deck.h"
+#include "Card.h"
+#include "Suit.h"
+using namespace std;
+
 
 enum class HoldEmRank { two, three, four, five, six, seven, eight, ten, nine, jack, queen, king, ace, undefined };
 
 class HoldEmDeck : public Deck {
     public:
-        HoldEmDeck(){};
-        void print(std::ostream& os){};
+        HoldEmDeck();
+        void print(ostream&);
     private:
-        std::vector< Card<HoldEmRank, Suit> > cards;
+        vector< Card<HoldEmRank, Suit> > cards;
 };
 
-std::ostream& operator<<(std::ostream& os, const HoldEmRank& rank);
+ostream& operator<<(ostream& os, const HoldEmRank& rank);
 
 HoldEmRank& operator++(HoldEmRank& rank);

@@ -1,15 +1,21 @@
 #pragma once
+#include <iostream>
+#include <vector>
+#include "Deck.h"
+#include "Card.h"
+#include "Suit.h"
+using namespace std;
 
 enum class PinochleRank { nine, jack, queen, king, ten, ace, undefined };
 
 class PinochleDeck : public Deck {
     public:
-        PinochleDeck(){};
-        void print(std::ostream& os){};
+        PinochleDeck();
+        void print(ostream&);
     private:
-        std::vector< Card<PinochleRank, Suit> > cards;
+        vector< Card<PinochleRank, Suit> > cards;
 };
 
-std::ostream& operator<<(std::ostream& os, const PinochleRank& rank);
+ostream& operator<<(ostream& os, const PinochleRank& rank);
 
 PinochleRank& operator++(PinochleRank& rank);

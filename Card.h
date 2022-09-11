@@ -1,4 +1,5 @@
 #pragma once
+using namespace std;
 
 template <typename R, typename S>
 struct Card {
@@ -9,4 +10,4 @@ struct Card {
 };
 
 template <typename R, typename S>
-std::ostream& operator<<(std::ostream& os, const Card<R, S>& card);
+ostream& operator<<(ostream& os, const Card<R, S>& card);

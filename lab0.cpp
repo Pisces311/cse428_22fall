@@ -1,5 +1,5 @@
-#include "HoldEmDeck.cpp"
-#include "PinochleDeck.cpp"
+#include "HoldEmDeck.h"
+#include "PinochleDeck.h"
 
 #include <stack>
 
