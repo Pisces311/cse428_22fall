@@ -1,10 +1,11 @@
 #include "HoldEmDeck.h"
-#include "Deck.h"
-#include "Card_T.h"
-#include "Suit.h"
 
 #include <iostream>
-#include <vector> 
+#include <vector>
+
+#include "Card_T.h"
+#include "Deck.h"
+#include "Suit.h"
 
 HoldEmDeck::HoldEmDeck() {
     for (Suit i = Suit::clubs; i <= Suit::spades; ++i) {
@@ -14,21 +15,21 @@ HoldEmDeck::HoldEmDeck() {
     }
 }
 
-void HoldEmDeck::print(ostream& os) {
+void HoldEmDeck::print(std::ostream& os) {
     for (Card<HoldEmRank, Suit> card : HoldEmDeck::cards) {
         os << card << " ";
-        if (card.rank == HoldEmRank::ace) os << endl;
+        if (card.rank == HoldEmRank::ace) os << std::endl;
     }
 }
 
-ostream& operator<<(std::ostream& os, const HoldEmRank& rank) {
+std::ostream& operator<<(std::ostream& os, const HoldEmRank& rank) {
     switch (rank) {
         case HoldEmRank::two:
             os << "2";
             break;
         case HoldEmRank::three:
             os << "3";
-            break;   
+            break;
         case HoldEmRank::four:
             os << "4";
             break;
@@ -52,7 +53,7 @@ ostream& operator<<(std::ostream& os, const HoldEmRank& rank) {
             break;
         case HoldEmRank::jack:
             os << "J";
-            break;   
+            break;
         case HoldEmRank::queen:
             os << "Q";
             break;

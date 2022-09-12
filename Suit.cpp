@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-ostream& operator<<(ostream& os, const Suit& suit) {
+std::ostream& operator<<(std::ostream& os, const Suit& suit) {
     switch (suit) {
         case Suit::clubs:
             os << "C";

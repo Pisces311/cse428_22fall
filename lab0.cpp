@@ -7,11 +7,11 @@ int main() {
     std::stack<HoldEmDeck> holdEmStack;
     std::stack<PinochleDeck> PinochleStack;
 
-    HoldEmDeck holdEmDeck = HoldEmDeck();
-    PinochleDeck pinochleDeck = PinochleDeck();
+    HoldEmDeck* holdEmDeck = new HoldEmDeck();
+    PinochleDeck* pinochleDeck = new PinochleDeck();
 
-    holdEmDeck.print(std::cout);
-    pinochleDeck.print(std::cout);
+    holdEmDeck->print(std::cout);
+    pinochleDeck->print(std::cout);
 
     return 0;
 }
