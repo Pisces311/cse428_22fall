@@ -6,6 +6,7 @@ Siqian Hou h.siqian@wustl.edu
 1. Warning fixes: When we first compiled this program, there was a warning: destructor called on non-final 'HoldEmDeck' that has virtual functions but non-virtual destructor.
 After searching the internet, we learned a C++ Core guideline: A base class destructor should be either public and virtual, or protected and nonvirtual. So we finally added a virtual destructor to the 'Deck' class.
 
+
 2. Error fix: We got 1 error when we compiled and ran our program at the first time, the error is as below:
 
 /tmp/ccXAT4CI.o: In function \`PinochleDeck::print(std::ostream&)‘:
@@ -32,3 +33,9 @@ Card_T.h file:
 
 This part of code helps include .cpp along with .h so this approach solve the problem while separate declaration and definition
 at the same time.
+
+
+3. Design of deck output: When designing our output for both Deck: 1) For each card, we first insert rank into ostream and then
+insert suit into ostream. (e.g. 2C) 2) Between each card, we add a space as the lab instruction. 3) For both deck, when we has
+output a whole list of one suit (e.g. 2C 3C 4C 5C 6C 7C 8C 10C 9C JC QC KC AC), we put a line break and turn to the next suit.
+This can make our output more readable and clear.
