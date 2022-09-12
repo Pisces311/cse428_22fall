@@ -2,7 +2,7 @@
 #include <iostream>
 #include <vector>
 #include "Deck.h"
-#include "Card.h"
+#include "Card_T.h"
 #include "Suit.h"
 using namespace std;
 

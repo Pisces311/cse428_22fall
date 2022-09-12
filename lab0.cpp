@@ -3,7 +3,7 @@
 
 #include <stack>
 
-int main(int agrc, char* argv[]) {
+int main() {
     std::stack<HoldEmDeck> holdEmStack;
     std::stack<PinochleDeck> PinochleStack;
 

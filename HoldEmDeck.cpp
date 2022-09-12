@@ -1,6 +1,6 @@
 #include "HoldEmDeck.h"
 #include "Deck.h"
-#include "Card.h"
+#include "Card_T.h"
 #include "Suit.h"
 
 #include <iostream>

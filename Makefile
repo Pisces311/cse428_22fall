@@ -7,10 +7,10 @@ EXECUTABLE	= lab0
 CMPL_SRCS	= Suit.cpp PinochleDeck.cpp HoldEmDeck.cpp lab0.cpp
 
 #               Source files containing only template class method definitions
-TMPL_SRCS	= Card.cpp
+TMPL_SRCS	= Card_T.cpp
 
 #               Header (.h) files
-HEADER_FILES    = Suit.h Card.h Deck.h PinochleDeck.h HoldEmDeck.h 
+HEADER_FILES    = Suit.h Card_T.h Deck.h PinochleDeck.h HoldEmDeck.h 
 
 #               Any special flags that should be set for compilation
 SPECIAL_FLAGS  = -std=c++17 -DTEMPLATE_HEADERS_INCLUDE_SOURCE
