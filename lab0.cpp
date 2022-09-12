@@ -1,17 +1,14 @@
 #include "HoldEmDeck.h"
 #include "PinochleDeck.h"
 
-#include <stack>
+const int SUCCESS = 0;
 
 int main() {
-    std::stack<HoldEmDeck> holdEmStack;
-    std::stack<PinochleDeck> PinochleStack;
+    HoldEmDeck holdEmDeck;
+    PinochleDeck pinochleDeck;
 
-    HoldEmDeck* holdEmDeck = new HoldEmDeck();
-    PinochleDeck* pinochleDeck = new PinochleDeck();
+    holdEmDeck.print(std::cout);
+    pinochleDeck.print(std::cout);
 
-    holdEmDeck->print(std::cout);
-    pinochleDeck->print(std::cout);
-
-    return 0;
+    return SUCCESS;
 }
