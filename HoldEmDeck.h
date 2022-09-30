@@ -1,9 +1,10 @@
 #pragma once
+
 #include <iostream>
 #include <vector>
 
 #include "Card_T.h"
-#include "Deck.h"
+#include "Deck_T.h"
 #include "Suit.h"
 
 enum class HoldEmRank {
@@ -23,13 +24,9 @@ enum class HoldEmRank {
     undefined
 };
 
-class HoldEmDeck : public Deck {
+class HoldEmDeck : public Deck<HoldEmRank, Suit> {
    public:
     HoldEmDeck();
-    void print(std::ostream& os);
-
-   private:
-    std::vector< Card<HoldEmRank, Suit> > cards;
 };
 
 std::ostream& operator<<(std::ostream& os, const HoldEmRank& rank);

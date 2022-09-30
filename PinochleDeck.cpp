@@ -1,25 +1,20 @@
 #include "PinochleDeck.h"
-#include "Deck.h"
-#include "Card_T.h"
-#include "Suit.h"
 
 #include <iostream>
-#include <vector> 
+#include <vector>
+
+#include "Card_T.h"
+#include "Deck_T.h"
+#include "Suit.h"
 
 PinochleDeck::PinochleDeck() {
-    for (size_t i = 0; i < 2; i++) {
+    for (size_t i = 0; i < numDecks; i++) {
         for (Suit j = Suit::clubs; j <= Suit::spades; ++j) {
-            for (PinochleRank k = PinochleRank::nine; k <= PinochleRank::ace; ++k) {
+            for (PinochleRank k = PinochleRank::nine; k <= PinochleRank::ace;
+                 ++k) {
                 PinochleDeck::cards.push_back(Card<PinochleRank, Suit>(k, j));
             }
         }
-    }
-}
-
-void PinochleDeck::print(std::ostream& os) {
-    for (Card<PinochleRank, Suit> card : PinochleDeck::cards) {
-        os << card << " ";
-        if (card.rank == PinochleRank::ace) os << std::endl;
     }
 }
 
@@ -30,7 +25,7 @@ std::ostream& operator<<(std::ostream& os, const PinochleRank& rank) {
             break;
         case PinochleRank::jack:
             os << "J";
-            break;   
+            break;
         case PinochleRank::queen:
             os << "Q";
             break;

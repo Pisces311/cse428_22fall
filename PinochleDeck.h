@@ -3,18 +3,16 @@
 #include <vector>
 
 #include "Card_T.h"
-#include "Deck.h"
+#include "Deck_T.h"
 #include "Suit.h"
 
 enum class PinochleRank { nine, jack, queen, king, ten, ace, undefined };
 
-class PinochleDeck : public Deck {
+class PinochleDeck : public Deck<PinochleRank, Suit> {
+    const size_t numDecks = 2;
+
    public:
     PinochleDeck();
-    void print(std::ostream& os);
-
-   private:
-    std::vector< Card<PinochleRank, Suit> > cards;
 };
 
 std::ostream& operator<<(std::ostream& os, const PinochleRank& rank);

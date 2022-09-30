@@ -4,7 +4,7 @@
 #include <vector>
 
 #include "Card_T.h"
-#include "Deck.h"
+#include "Deck_T.h"
 #include "Suit.h"
 
 HoldEmDeck::HoldEmDeck() {
@@ -12,13 +12,6 @@ HoldEmDeck::HoldEmDeck() {
         for (HoldEmRank j = HoldEmRank::two; j <= HoldEmRank::ace; ++j) {
             HoldEmDeck::cards.push_back(Card<HoldEmRank, Suit>(j, i));
         }
-    }
-}
-
-void HoldEmDeck::print(std::ostream& os) {
-    for (Card<HoldEmRank, Suit> card : HoldEmDeck::cards) {
-        os << card << " ";
-        if (card.rank == HoldEmRank::ace) os << std::endl;
     }
 }
 

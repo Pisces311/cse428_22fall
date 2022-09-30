@@ -7,8 +7,8 @@ int main() {
     HoldEmDeck holdEmDeck;
     PinochleDeck pinochleDeck;
 
-    holdEmDeck.print(std::cout);
-    pinochleDeck.print(std::cout);
+    holdEmDeck.print(std::cout, 13);
+    pinochleDeck.print(std::cout, 6);
 
     return SUCCESS;
 }

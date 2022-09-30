@@ -1,10 +1,10 @@
 #		The name of the executable file you want to build
-EXECUTABLE	= lab0
+EXECUTABLE	= lab1
 
 #		Source (.cpp) files you want to compile
 #		(NOTE: Don't include header (.h) files, or any source (.cpp) files
 #		that only contain template class method definitions.)
-CMPL_SRCS	= Suit.cpp PinochleDeck.cpp HoldEmDeck.cpp lab0.cpp
+CMPL_SRCS	= Suit.cpp PinochleDeck.cpp HoldEmDeck.cpp lab1.cpp
 
 #               Source files containing only template class method definitions
 TMPL_SRCS	= Card_T.cpp
