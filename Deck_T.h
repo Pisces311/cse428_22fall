@@ -7,6 +7,7 @@
 template <typename R, typename S>
 class Deck : public CardSet<R, S> {
    public:
+    void shuffle();
     virtual ~Deck() = default;
 };
 

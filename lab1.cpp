@@ -7,8 +7,9 @@ int main() {
     HoldEmDeck holdEmDeck;
     PinochleDeck pinochleDeck;
 
+    holdEmDeck.shuffle();
     holdEmDeck.print(std::cout, 13);
-    pinochleDeck.print(std::cout, 6);
+    // pinochleDeck.print(std::cout, 6);
 
     return SUCCESS;
 }
