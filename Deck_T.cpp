@@ -1,8 +1,8 @@
 #include "Deck_T.h"
 
 #include <algorithm>
-#include <random>
 #include <iostream>
+#include <random>
 
 template <typename R, typename S>
 void Deck<R, S>::shuffle() {
@@ -16,8 +16,7 @@ void Deck<R, S>::collect(CardSet<R, S>& cardSet) {
     while (true) {
         try {
             cardSet >> *this;
-        }
-        catch (std::runtime_error& e) {
+        } catch (std::runtime_error& e) {
             return;
         }
     }

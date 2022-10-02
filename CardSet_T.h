@@ -3,10 +3,12 @@
 #include <iostream>
 #include <vector>
 
+#include "Card_T.h"
+
 template <typename R, typename S>
 class CardSet {
    protected:
-    std::vector< Card<R, S> > cards;
+    std::vector<Card<R, S> > cards;
 
    public:
     void print(std::ostream& os, size_t size);

@@ -1,15 +1,18 @@
 #pragma once
 
-#include <vector>
 #include <string>
+#include <vector>
 
 class Game {
-    int startIndex = 2;
+   protected:
+    const int SUCCESS = 0;
 
-protected:
+    int startIndex = 2;
     std::vector<std::string> players;
 
-public:
+    bool continuePrompt();
+
+   public:
     Game(int argc, const char **argv);
     virtual ~Game() = default;
     virtual int play() = 0;
