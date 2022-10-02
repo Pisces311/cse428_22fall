@@ -36,7 +36,7 @@ int PinochleGame::play() {
         deal();
         printHands();
         collectHands();
-        if (!continuePrompt()) {
+        if (continuePrompt()) {
             break;
         }
     }

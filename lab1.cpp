@@ -1,13 +1,11 @@
-#include "HoldEmDeck.h"
-#include "PinochleDeck.h"
-#include "Game.h"
+#include "PinochleGame.h"
 
 const int SUCCESS = 0;
 
 int main(int argc, const char **argv) {
-    HoldEmDeck holdEmDeck;
-    PinochleDeck pinochleDeck1;
-    PinochleDeck pinochleDeck2;
+    // HoldEmDeck holdEmDeck;
+    // PinochleDeck pinochleDeck1;
+    // PinochleDeck pinochleDeck2;
 
 //    exercise 9 test
 //    holdEmDeck.shuffle();
@@ -28,7 +26,8 @@ int main(int argc, const char **argv) {
 //    pinochleDeck1.print(std::cout, 10);
 //    pinochleDeck2.print(std::cout, 10);
 
-
+    PinochleGame game(argc, argv);
+    game.play();
 
     return SUCCESS;
 }
