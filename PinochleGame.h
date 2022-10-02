@@ -8,7 +8,7 @@ class PinochleGame : public Game {
     PinochleDeck deck;
     std::vector<CardSet<PinochleRank, Suit>> hands;
 
-    void deal();
+    virtual void deal();
     void printHands();
     void collectHands();
 
