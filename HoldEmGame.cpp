@@ -85,7 +85,7 @@ int HoldEmGame::play() {
         collectHands();
         collectBoards();
 
-        if (!continuePrompt()) {
+        if (continuePrompt()) {
             break;
         }
     }
