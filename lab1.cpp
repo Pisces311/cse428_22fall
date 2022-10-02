@@ -1,4 +1,5 @@
 #include "PinochleGame.h"
+#include "HoldEmGame.h"
 
 const int SUCCESS = 0;
 
@@ -26,7 +27,8 @@ int main(int argc, const char **argv) {
 //    pinochleDeck1.print(std::cout, 10);
 //    pinochleDeck2.print(std::cout, 10);
 
-    PinochleGame game(argc, argv);
+    // PinochleGame game(argc, argv);
+    HoldEmGame game(argc, argv);
     game.play();
 
     return SUCCESS;

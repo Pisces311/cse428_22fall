@@ -31,15 +31,6 @@ void HoldEmGame::deal() {
         default:
             break;
     }
-
-    int playerIdx = 0, cardCnt = 0;
-    while (!deck.is_empty()) {
-        deck >> hands[playerIdx];
-        if (++cardCnt == 3) {
-            cardCnt = 0;
-            playerIdx = (playerIdx + 1) % hands.size();
-        }
-    }
 }
 
 void HoldEmGame::printHands() {
