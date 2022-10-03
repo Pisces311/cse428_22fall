@@ -19,8 +19,8 @@ void HoldEmGame::deal() {
             break;
         case HoldEmState::flop:
             for (size_t i = 0; i < 3; i++) {
-                    deck >> commonBoards;
-                }
+                deck >> commonBoards;
+            }
             state = HoldEmState(static_cast<int>(state) + 1);
             break;
         case HoldEmState::turn:
@@ -40,9 +40,7 @@ void HoldEmGame::printHands() {
     }
 }
 
-void HoldEmGame::printBoards() {
-    commonBoards.print(std::cout, 3);
-}
+void HoldEmGame::printBoards() { commonBoards.print(std::cout, 3); }
 
 void HoldEmGame::collectHands() {
     for (size_t i = 0; i < hands.size(); i++) {
@@ -50,9 +48,7 @@ void HoldEmGame::collectHands() {
     }
 }
 
-void HoldEmGame::collectBoards() {
-    deck.collect(commonBoards);
-}
+void HoldEmGame::collectBoards() { deck.collect(commonBoards); }
 
 int HoldEmGame::play() {
     while (true) {
