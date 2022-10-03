@@ -12,7 +12,11 @@ the same content for Pinocle and Hold'em games. But all the other member functio
 left in the derived classes "PinocleGame" and "HoldEmGame," because different games may have different dealing methods and
 the "hands" they are dealing with have different types.
 
-3. Trial results:
+3. Design for receiving argument from command line: We set a protected integer "startIndex" which the constructor will read from the
+the pre-set index instead of 0. Since we set it as 2, so we can just ignore the first 2 arguments which should be "./lab1.exe" and
+"GameName".
+
+4. Trial results:
 
 Trial 1
 $ ./lab1 HoldEm player1        
