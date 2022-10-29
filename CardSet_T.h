@@ -11,6 +11,11 @@ class CardSet {
     std::vector<Card<R, S> > cards;
 
    public:
+    CardSet() = default;
+    CardSet(const CardSet<R, S>& other) : cards(other.cards) {}
+
+    static std::vector<Card<R, S> > CardSet<R, S>::*getCards();
+
     void print(std::ostream& os, size_t size);
     CardSet<R, S>& operator>>(CardSet<R, S>& cardSet);
     bool is_empty();

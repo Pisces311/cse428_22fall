@@ -5,6 +5,11 @@
 #include "Card_T.h"
 
 template <typename R, typename S>
+std::vector<Card<R, S> > CardSet<R, S>::*getCards() {
+    return &CardSet<R, S>::cards;
+}
+
+template <typename R, typename S>
 void CardSet<R, S>::print(std::ostream& os, size_t size) {
     size_t cnt = 0;
     for (typename std::vector<Card<R, S> >::iterator it = cards.begin();
