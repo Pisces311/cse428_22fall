@@ -5,7 +5,7 @@
 #include "Card_T.h"
 
 template <typename R, typename S>
-std::vector<Card<R, S> > CardSet<R, S>::*getCards() {
+std::vector<Card<R, S> > CardSet<R, S>::*CardSet<R, S>::getCards() {
     return &CardSet<R, S>::cards;
 }
 

@@ -23,23 +23,27 @@ enum class PinochleMelds {
 };
 
 class PinochleGame : public Game {
+   public:
+    using cardType = Card<PinochleRank, Suit>;
+    using cardSetType = CardSet<PinochleRank, Suit>;
+
+    static unsigned int points[];
+
    protected:
     PinochleDeck deck;
-    std::vector<CardSet<PinochleRank, Suit>> hands;
+    std::vector<cardSetType> hands;
 
     virtual void deal();
     void printHands();
     void collectHands();
 
    public:
-    static unsigned int points[];
-
     PinochleGame(int argc, const char** argv);
     virtual ~PinochleGame() = default;
     virtual int play();
 
    private:
-    void suit_independent_evaluation(const CardSet<PinochleRank, Suit>& hand,
+    void suit_independent_evaluation(const cardSetType& hand,
                                      std::vector<PinochleMelds>& melds);
 };
 

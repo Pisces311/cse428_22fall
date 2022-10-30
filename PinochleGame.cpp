@@ -1,11 +1,13 @@
 #include "PinochleGame.h"
 
+#include <algorithm>
+
 unsigned int PinochleGame::points[] = {10,  20,  40,  40,  40,  60,   80,  100,
                                        150, 300, 400, 600, 800, 1000, 1500};
 
 PinochleGame::PinochleGame(int argc, const char** argv) : Game(argc, argv) {
     for (int i = startIndex; i < argc; ++i) {
-        hands.push_back(CardSet<PinochleRank, Suit>());
+        hands.push_back(cardSetType());
     }
 }
 
@@ -24,12 +26,19 @@ void PinochleGame::printHands() {
     for (size_t i = 0; i < hands.size(); i++) {
         std::cout << players[i] << "'s hand:" << std::endl;
         hands[i].print(std::cout, 3);
+        std::vector<PinochleMelds> melds;
+        suit_independent_evaluation(hands[i], melds);
+        std::cout << "Melds:" << std::endl;
+        for (auto meld : melds) {
+            std::cout << meld << std::endl;
+        }
+        std::cout << std::endl;
     }
 }
 
 void PinochleGame::collectHands() {
-    for (size_t i = 0; i < hands.size(); i++) {
-        deck.collect(hands[i]);
+    for (cardSetType& hand : hands) {
+        deck.collect(hand);
     }
 }
 
@@ -47,9 +56,78 @@ int PinochleGame::play() {
 }
 
 void PinochleGame::suit_independent_evaluation(
-    const CardSet<PinochleRank, Suit>& hand,
-    std::vector<PinochleMelds>& melds) {
-    // TODO: implement
+    const cardSetType& hand, std::vector<PinochleMelds>& melds) {
+    cardSetType handCopy = hand;
+    std::vector<cardType> cardSetType::*cards = cardSetType::getCards();
+
+    auto hasSets = [&](PinochleRank rank) {
+        std::vector<int> suitCount(4);
+        for (const cardType& card : handCopy.*cards) {
+            if (card.rank == rank) {
+                suitCount[static_cast<int>(card.suit)]++;
+            }
+        }
+        return *min_element(suitCount.begin(), suitCount.end());
+    };
+
+    // thousandaces & hundredaces
+    switch (hasSets(PinochleRank::ace)) {
+        case 2:
+            melds.push_back(PinochleMelds::thousandaces);
+            break;
+        case 1:
+            melds.push_back(PinochleMelds::hundredaces);
+            break;
+    }
+
+    // eighthundredkings & eightykings
+    switch (hasSets(PinochleRank::king)) {
+        case 2:
+            melds.push_back(PinochleMelds::eighthundredkings);
+            break;
+        case 1:
+            melds.push_back(PinochleMelds::eightykings);
+            break;
+    }
+
+    // sixhundredqueens & sixtyqueens
+    switch (hasSets(PinochleRank::queen)) {
+        case 2:
+            melds.push_back(PinochleMelds::sixhundredqueens);
+            break;
+        case 1:
+            melds.push_back(PinochleMelds::sixtyqueens);
+            break;
+    }
+
+    // fourhundredjacks & fortyjacks
+    switch (hasSets(PinochleRank::jack)) {
+        case 2:
+            melds.push_back(PinochleMelds::fourhundredjacks);
+            break;
+        case 1:
+            melds.push_back(PinochleMelds::fortyjacks);
+            break;
+    }
+
+    // doublepinochle & pinochle
+    int JDiamonds = 0, QSpades = 0;
+    for (const cardType& card : handCopy.*cards) {
+        if (card.rank == PinochleRank::jack && card.suit == Suit::diamonds) {
+            JDiamonds++;
+        } else if (card.rank == PinochleRank::queen &&
+                   card.suit == Suit::spades) {
+            QSpades++;
+        }
+    }
+    switch (std::min(JDiamonds, QSpades)) {
+        case 2:
+            melds.push_back(PinochleMelds::doublepinochle);
+            break;
+        case 1:
+            melds.push_back(PinochleMelds::pinochle);
+            break;
+    }
 }
 
 std::ostream& operator<<(std::ostream& os, const PinochleMelds& meld) {
