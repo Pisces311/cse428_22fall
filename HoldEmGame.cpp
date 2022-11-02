@@ -78,10 +78,13 @@ int HoldEmGame::play() {
         }
         // sort by player's cardset rank
         std::sort(structs.begin(), structs.end(), operator<);
+        std::reverse(structs.begin(), structs.end());
+        std::cout << "" << std::endl;
         for (size_t i = 0; i < structs.size(); i++) {
             std::cout << structs[i].playerName << "'s rank: " << structs[i].rank
                       << std::endl;
         }
+        std::cout << "" << std::endl;
 
         deal();
         std::cout << "BOARD(turn): " << std::endl;
