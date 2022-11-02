@@ -9,67 +9,95 @@ Siqian Hou h.siqian@wustl.edu
 
 Trial 1
 $ ./lab1 HoldEm player1        
-Usage: ./lab1 Pinochle/HoldEm player1 player2 ...
+Usage: ./lab2 Pinochle/HoldEm player1 player2 ...
 [Pinochle]: must have 4 players
 [HoldEm]: between 2 and 9 players
 
-We can see that the usage information is correctly printed.
+- We can see that the usage information is correctly printed.
 
 Trial 2
-$ ./lab1 Pinochle player1 player2 player3 player4
+$ ./lab2 Pinochle player1 player2 player3 player4
 player1's hand:
-AS QD KD 
-AD KC JD 
-9S AS AD 
-9D AC 9C 
+KH JS AH 
+AS QD 10D 
+10H JS 10C 
+JH AC AD 
+Melds:
+Hundred Aces 100
+
 player2's hand:
-JC KS JS 
-KH QH 10D 
-10H QC QS 
-QH 9S AH 
+9H QC KS 
+KD JD KS 
+QH KD JC 
+9D 9S QH 
+Melds:
+
 player3's hand:
-10C 9D 10C 
-KD 9H JH 
-10H KC 10D 
-JH 9H AH 
+10S AS KC 
+10C KC JH 
+AH QC 9C 
+KH AD 10S 
+Melds:
+
 player4's hand:
-QD JD KH 
-QC JC 9C 
-AC 10S 10S 
-KS JS QS 
+QD QS QS 
+JD 10H 9S 
+9H JC 10D 
+9D 9C AC 
+Melds:
+Pinochle 40
+
 End the game? (yes/no): yes
+
+- We can see the melds are printed correctly.
 
 Trial 3
-$ ./lab1 HoldEm player1 player2                  
+$ ./lab2 HoldEm player1 player2 player3               
 player1's hand:
-8H 9C 
+9D 6H 
 player2's hand:
-8S 6C 
+8H AH 
+player3's hand:
+JC JD 
 BOARD(flop): 
-7D 9D KD 
+8D JS 4S 
+
+player3's rank: Three of a Kind
+player2's rank: Pair
+player1's rank: X-High
+
 BOARD(turn): 
-7D 9D KD 
-8D 
+8D JS 4S 
+3S 
 BOARD(river): 
-7D 9D KD 
-8D 10C 
+8D JS 4S 
+3S 7S 
 End the game? (yes/no): yes
+
+- We can see the hand rank are sorted and printed correctly.
 
 Trial 4
-$ ./lab1 HoldEm player1 player2
+$ ./lab2 HoldEm player1 player2 player3
 player1's hand:
-5C 7C 
+QH 8H 
 player2's hand:
-3S 10C 
+2H JD 
+player3's hand:
+QC AD 
 BOARD(flop): 
-6D QH 4H 
+3S 9H KC 
+
+player3's rank: X-High
+player1's rank: X-High
+player2's rank: X-High
+
 BOARD(turn): 
-6D QH 4H 
-JH 
+3S 9H KC 
+10H 
 BOARD(river): 
-6D QH 4H 
-JH 9C 
+3S 9H KC 
+10H KD 
 End the game? (yes/no): yes
 
-We can see that the initial ordering of cards in each game's deck differs from run to run of the program,
+- We can see that the initial ordering of cards in each game's deck differs from run to run of the program,
 and the subsequent ordering of cards in the game's deck differs from turn to turn of play within each run of the program.
