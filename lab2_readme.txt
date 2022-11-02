@@ -8,7 +8,7 @@ Siqian Hou h.siqian@wustl.edu
 2. Trial results:
 
 Trial 1
-$ ./lab1 HoldEm player1        
+$ ./lab2 HoldEm player1        
 Usage: ./lab2 Pinochle/HoldEm player1 player2 ...
 [Pinochle]: must have 4 players
 [HoldEm]: between 2 and 9 players
