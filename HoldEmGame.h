@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <vector>
 
 #include "Game.h"
@@ -37,12 +38,27 @@ class HoldEmGame : public Game {
     void collectBoards();
 
    public:
+    struct HoldEmGameStruct
+    {
+        /* data */
+        cardSetType cardSet;
+        std::string& playerName;
+        HoldEmHandRank rank;
+
+        HoldEmGameStruct(cardSetType givenCardSet, 
+        std::string& givenPlayerName, 
+        HoldEmHandRank givenRank)
+        : cardSet(givenCardSet), playerName(givenPlayerName), rank(givenRank) {}
+    };
+
     HoldEmGame(int argc, const char **argv);
     virtual ~HoldEmGame() = default;
     virtual int play();
 
    private:
     HoldEmHandRank holdem_hand_evaluation(const cardSetType &hand);
+    
 };
 
 std::ostream &operator<<(std::ostream &os, const HoldEmHandRank &rank);
+bool operator<(const HoldEmGame::HoldEmGameStruct &obj1, const HoldEmGame::HoldEmGameStruct &obj2);
