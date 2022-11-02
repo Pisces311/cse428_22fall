@@ -81,9 +81,6 @@ int HoldEmGame::play() {
         for (size_t i = 0; i < structs.size(); i++) {
             std::cout << structs[i].playerName << "'s rank: " << structs[i].rank
                       << std::endl;
-            if (structs[0] < structs[1]) {
-                std::cout << "yes" << std::endl;
-            }
         }
 
         deal();
