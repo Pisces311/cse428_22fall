@@ -38,17 +38,17 @@ class HoldEmGame : public Game {
     void collectBoards();
 
    public:
-    struct HoldEmGameStruct
-    {
+    struct HoldEmGameStruct {
         /* data */
         cardSetType cardSet;
-        std::string& playerName;
+        std::string playerName;
         HoldEmHandRank rank;
 
-        HoldEmGameStruct(cardSetType givenCardSet, 
-        std::string& givenPlayerName, 
-        HoldEmHandRank givenRank)
-        : cardSet(givenCardSet), playerName(givenPlayerName), rank(givenRank) {}
+        HoldEmGameStruct(cardSetType givenCardSet, std::string &givenPlayerName,
+                         HoldEmHandRank givenRank)
+            : cardSet(givenCardSet),
+              playerName(givenPlayerName),
+              rank(givenRank) {}
     };
 
     HoldEmGame(int argc, const char **argv);
@@ -57,8 +57,8 @@ class HoldEmGame : public Game {
 
    private:
     HoldEmHandRank holdem_hand_evaluation(const cardSetType &hand);
-    
 };
 
 std::ostream &operator<<(std::ostream &os, const HoldEmHandRank &rank);
-bool operator<(const HoldEmGame::HoldEmGameStruct &obj1, const HoldEmGame::HoldEmGameStruct &obj2);
+bool operator<(const HoldEmGame::HoldEmGameStruct &obj1,
+               const HoldEmGame::HoldEmGameStruct &obj2);

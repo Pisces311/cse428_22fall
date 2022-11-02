@@ -2,9 +2,6 @@
 
 #include <algorithm>
 
-using cardType = Card<HoldEmRank, Suit>;
-using cardSetType = CardSet<HoldEmRank, Suit>;
-
 HoldEmGame::HoldEmGame(int argc, const char** argv) : Game(argc, argv) {
     state = HoldEmState::preflop;
     for (int i = startIndex; i < argc; ++i) {
@@ -68,25 +65,26 @@ int HoldEmGame::play() {
 
         std::vector<HoldEmGameStruct> structs;
         for (size_t i = 0; i < players.size(); i++) {
-            structs.push_back(HoldEmGameStruct(hands[i], players[i], HoldEmHandRank::undefined));
+            structs.push_back(HoldEmGameStruct(hands[i], players[i],
+                                               HoldEmHandRank::undefined));
         }
         std::vector<cardType> cardSetType::*cards = cardSetType::getCards();
         for (size_t i = 0; i < structs.size(); i++) {
             for (size_t j = 0; j < (commonBoards.*cards).size(); j++) {
-                ((structs[i].cardSet).*cards).push_back((commonBoards.*cards)[j]);
+                ((structs[i].cardSet).*cards)
+                    .push_back((commonBoards.*cards)[j]);
             }
             structs[i].rank = holdem_hand_evaluation(structs[i].cardSet);
         }
         // sort by player's cardset rank
         std::sort(structs.begin(), structs.end(), operator<);
         for (size_t i = 0; i < structs.size(); i++) {
-            std::cout << structs[i].playerName << "'s rank: " << structs[i].rank << std::endl;
+            std::cout << structs[i].playerName << "'s rank: " << structs[i].rank
+                      << std::endl;
             if (structs[0] < structs[1]) {
                 std::cout << "yes" << std::endl;
             }
         }
-
-
 
         deal();
         std::cout << "BOARD(turn): " << std::endl;
@@ -231,9 +229,12 @@ std::ostream& operator<<(std::ostream& os, const HoldEmHandRank& rank) {
     return os;
 }
 
-bool operator<(const HoldEmGame::HoldEmGameStruct &obj1, const HoldEmGame::HoldEmGameStruct &obj2) {
-    if (obj1.rank < obj2.rank)
-    {
+bool operator<(const HoldEmGame::HoldEmGameStruct& obj1,
+               const HoldEmGame::HoldEmGameStruct& obj2) {
+    using cardType = Card<HoldEmRank, Suit>;
+    using cardSetType = CardSet<HoldEmRank, Suit>;
+
+    if (obj1.rank < obj2.rank) {
         return true;
     }
 
@@ -255,14 +256,14 @@ bool operator<(const HoldEmGame::HoldEmGameStruct &obj1, const HoldEmGame::HoldE
         HoldEmRank pairRank1, pairRank2;
         std::vector<cardType>::const_iterator first1, last1, first2, last2;
         for (size_t i = 1; i < (hand1.*cards).size(); i++) {
-            if ((hand1.*cards)[i-1].rank == (hand1.*cards)[i].rank) {
+            if ((hand1.*cards)[i - 1].rank == (hand1.*cards)[i].rank) {
                 pairRank1 = (hand1.*cards)[i].rank;
-                first1 = (hand1.*cards).begin() + (i-1);
+                first1 = (hand1.*cards).begin() + (i - 1);
                 last1 = (hand1.*cards).begin() + i;
             }
-            if ((hand2.*cards)[i-1].rank == (hand2.*cards)[i].rank) {
+            if ((hand2.*cards)[i - 1].rank == (hand2.*cards)[i].rank) {
                 pairRank2 = (hand2.*cards)[i].rank;
-                first2 = (hand2.*cards).begin() + (i-1);
+                first2 = (hand2.*cards).begin() + (i - 1);
                 last2 = (hand2.*cards).begin() + i;
             }
         }
@@ -289,10 +290,10 @@ bool operator<(const HoldEmGame::HoldEmGameStruct &obj1, const HoldEmGame::HoldE
         // get the two pairs rank
         std::vector<HoldEmRank> pairRank1, pairRank2;
         for (size_t i = 1; i < (hand1.*cards).size(); i++) {
-            if ((hand1.*cards)[i-1].rank == (hand1.*cards)[i].rank) {
+            if ((hand1.*cards)[i - 1].rank == (hand1.*cards)[i].rank) {
                 pairRank1.push_back((hand1.*cards)[i].rank);
             }
-            if ((hand2.*cards)[i-1].rank == (hand2.*cards)[i].rank) {
+            if ((hand2.*cards)[i - 1].rank == (hand2.*cards)[i].rank) {
                 pairRank2.push_back((hand2.*cards)[i].rank);
             }
         }
@@ -305,12 +306,12 @@ bool operator<(const HoldEmGame::HoldEmGameStruct &obj1, const HoldEmGame::HoldE
         // get the otehr card
         HoldEmRank nonPairRank1, nonPairRank2;
         for (size_t i = 0; i < (hand1.*cards).size(); i++) {
-            if (std::find(pairRank1.begin(), pairRank1.end(), (hand1.*cards)[i].rank) 
-                == pairRank1.end()) {
+            if (std::find(pairRank1.begin(), pairRank1.end(),
+                          (hand1.*cards)[i].rank) == pairRank1.end()) {
                 nonPairRank1 = (hand1.*cards)[i].rank;
             }
-            if (std::find(pairRank2.begin(), pairRank2.end(), (hand2.*cards)[i].rank) 
-                == pairRank2.end()) {
+            if (std::find(pairRank2.begin(), pairRank2.end(),
+                          (hand2.*cards)[i].rank) == pairRank2.end()) {
                 nonPairRank2 = (hand2.*cards)[i].rank;
             }
         }
@@ -319,19 +320,20 @@ bool operator<(const HoldEmGame::HoldEmGameStruct &obj1, const HoldEmGame::HoldE
             return true;
         }
     }
-    
+
     // Both threeofakind or fullhouse
-    if ((obj1.rank == HoldEmHandRank::threeofakind || obj1.rank == HoldEmHandRank::fullhouse) 
-        && (obj1.rank == obj2.rank)) {
+    if ((obj1.rank == HoldEmHandRank::threeofakind ||
+         obj1.rank == HoldEmHandRank::fullhouse) &&
+        (obj1.rank == obj2.rank)) {
         // get the three of a kind rank
         HoldEmRank pairRank1, pairRank2;
         for (size_t i = 2; i < (hand1.*cards).size(); i++) {
-            if ((hand1.*cards)[i-1].rank == (hand1.*cards)[i].rank 
-                && (hand1.*cards)[i-2].rank == (hand1.*cards)[i].rank) {
+            if ((hand1.*cards)[i - 1].rank == (hand1.*cards)[i].rank &&
+                (hand1.*cards)[i - 2].rank == (hand1.*cards)[i].rank) {
                 pairRank1 = (hand1.*cards)[i].rank;
             }
-            if ((hand2.*cards)[i-1].rank == (hand2.*cards)[i].rank 
-                && (hand2.*cards)[i-2].rank == (hand2.*cards)[i].rank) {
+            if ((hand2.*cards)[i - 1].rank == (hand2.*cards)[i].rank &&
+                (hand2.*cards)[i - 2].rank == (hand2.*cards)[i].rank) {
                 pairRank2 = (hand2.*cards)[i].rank;
             }
         }
@@ -342,16 +344,18 @@ bool operator<(const HoldEmGame::HoldEmGameStruct &obj1, const HoldEmGame::HoldE
     }
 
     // Both straight or straightflush
-    if ((obj1.rank == HoldEmHandRank::straight || obj1.rank == HoldEmHandRank::straightflush) 
-        && (obj1.rank == obj2.rank)) {
+    if ((obj1.rank == HoldEmHandRank::straight ||
+         obj1.rank == HoldEmHandRank::straightflush) &&
+        (obj1.rank == obj2.rank)) {
         if ((hand1.*cards)[0].rank < (hand2.*cards)[0].rank) {
             return true;
         }
     }
 
     // Both flush or xhigh
-    if ((obj1.rank == HoldEmHandRank::flush || obj1.rank == HoldEmHandRank::xhigh) 
-        && (obj1.rank == obj2.rank)) {
+    if ((obj1.rank == HoldEmHandRank::flush ||
+         obj1.rank == HoldEmHandRank::xhigh) &&
+        (obj1.rank == obj2.rank)) {
         for (size_t i = 0; i < (hand1.*cards).size(); i++) {
             if ((hand1.*cards)[i].rank < (hand2.*cards)[i].rank) {
                 return true;
