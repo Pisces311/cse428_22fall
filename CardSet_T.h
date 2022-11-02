@@ -13,6 +13,7 @@ class CardSet {
    public:
     CardSet() = default;
     CardSet(const CardSet<R, S>& other) : cards(other.cards) {}
+    CardSet& operator=(const CardSet<R, S>& other) = default;
 
     static std::vector<Card<R, S> > CardSet<R, S>::*getCards();
 
