@@ -15,7 +15,7 @@ void PinochleGame::deal() {
     int playerIdx = 0, cardCnt = 0;
     while (!deck.is_empty()) {
         deck >> hands[playerIdx];
-        if (++cardCnt == 3) {
+        if (++cardCnt == numInEachPacket) {
             cardCnt = 0;
             playerIdx = (playerIdx + 1) % hands.size();
         }
@@ -25,7 +25,7 @@ void PinochleGame::deal() {
 void PinochleGame::printHands() {
     for (size_t i = 0; i < hands.size(); i++) {
         std::cout << players[i] << "'s hand:" << std::endl;
-        hands[i].print(std::cout, 3);
+        hands[i].print(std::cout, sizeInEachPacket);
         std::vector<PinochleMelds> melds;
         suit_independent_evaluation(hands[i], melds);
         std::cout << "Melds:" << std::endl;

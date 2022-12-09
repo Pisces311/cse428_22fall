@@ -12,7 +12,7 @@ HoldEmGame::HoldEmGame(int argc, const char** argv) : Game(argc, argv) {
 void HoldEmGame::deal() {
     switch (state) {
         case HoldEmState::preflop:
-            for (size_t i = 0; i < 2; i++) {
+            for (size_t i = 0; i < numPreflopRound; i++) {
                 for (size_t j = 0; j < hands.size(); j++) {
                     deck >> hands[j];
                 }
@@ -20,7 +20,7 @@ void HoldEmGame::deal() {
             state = HoldEmState(static_cast<int>(state) + 1);
             break;
         case HoldEmState::flop:
-            for (size_t i = 0; i < 3; i++) {
+            for (size_t i = 0; i < numCommonBoardsBatch; i++) {
                 deck >> commonBoards;
             }
             state = HoldEmState(static_cast<int>(state) + 1);
@@ -38,11 +38,11 @@ void HoldEmGame::deal() {
 void HoldEmGame::printHands() {
     for (size_t i = 0; i < hands.size(); i++) {
         std::cout << players[i] << "'s hand:" << std::endl;
-        hands[i].print(std::cout, 2);
+        hands[i].print(std::cout, numPlayerHands);
     }
 }
 
-void HoldEmGame::printBoards() { commonBoards.print(std::cout, 3); }
+void HoldEmGame::printBoards() { commonBoards.print(std::cout, numCommonBoardsBatch); }
 
 void HoldEmGame::collectHands() {
     for (cardSetType& hand : hands) {
@@ -109,7 +109,7 @@ HoldEmHandRank HoldEmGame::holdem_hand_evaluation(const cardSetType& hand) {
     std::vector<cardType> cardSetType::*cards = cardSetType::getCards();
 
     // undefined
-    if ((handCopy.*cards).size() != 5) {
+    if ((handCopy.*cards).size() != numFinalHands) {
         return HoldEmHandRank::undefined;
     }
 

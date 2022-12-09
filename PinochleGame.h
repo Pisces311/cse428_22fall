@@ -33,6 +33,9 @@ class PinochleGame : public Game {
     PinochleDeck deck;
     std::vector<cardSetType> hands;
 
+    const int numInEachPacket = 3;
+    const size_t sizeInEachPacket = 3;
+    
     virtual void deal();
     void printHands();
     void collectHands();

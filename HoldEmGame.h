@@ -31,6 +31,11 @@ class HoldEmGame : public Game {
     std::vector<cardSetType> hands;
     cardSetType commonBoards;
 
+    const size_t numPreflopRound = 2;
+    const size_t numCommonBoardsBatch = 3;
+    const size_t numPlayerHands = 2;
+    const size_t numFinalHands = 5;
+
     virtual void deal();
     void printHands();
     void printBoards();

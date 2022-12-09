@@ -9,7 +9,7 @@ Game::Game(int argc, const char **argv) {
         players.push_back(argv[i]);
     }
     dealer = players.size() - 1;
-    scores.assign(players.size(), 0);
+    scores.assign(players.size(), initialScore);
 }
 
 bool Game::continuePrompt() {

@@ -10,6 +10,7 @@ class Game {
     size_t dealer = 0;
 
     int startIndex = 2;
+    int initialScore = 0;
     std::vector<std::string> players;
     std::vector<unsigned int> scores;
 
