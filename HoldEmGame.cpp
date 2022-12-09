@@ -81,8 +81,11 @@ int HoldEmGame::play() {
         std::reverse(structs.begin(), structs.end());
         std::cout << "" << std::endl;
         for (size_t i = 0; i < structs.size(); i++) {
-            std::cout << structs[i].playerName << "'s rank: " << structs[i].rank
-                      << std::endl;
+            std::cout << structs[i].playerName << ": ";
+            for (size_t j = 0; j < ((structs[i].cardSet).*cards).size(); j++) {
+                std::cout << ((structs[i].cardSet).*cards)[j] << " ";
+            }
+            std::cout << "(" << structs[i].rank << ")" << std::endl;
         }
         std::cout << "" << std::endl;
 
