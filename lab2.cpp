@@ -26,8 +26,8 @@ shared_ptr<Game> create(int argc, const char **argv) {
     return spGame;
 }
 
-void printUsage() {
-    std::cout << "Usage: ./lab1 Pinochle/HoldEm player1 player2 ..."
+void printUsage(const char *name) {
+    std::cout << "Usage: " << name << " Pinochle/HoldEm player1 player2 ..."
               << std::endl;
     std::cout << "[Pinochle]: must have 4 players" << std::endl;
     std::cout << "[HoldEm]: between 2 and 9 players" << std::endl;
@@ -35,7 +35,7 @@ void printUsage() {
 
 int main(int argc, const char **argv) {
     if (argc == 1) {
-        printUsage();
+        printUsage(argv[0]);
         return COMMAND_LINE_ARG_ERROR;
     }
 
@@ -52,7 +52,7 @@ int main(int argc, const char **argv) {
             return CREATE_GAME_OBJECT_ERROR;
         }
     } else {
-        printUsage();
+        printUsage(argv[0]);
         return COMMAND_LINE_ARG_ERROR;
     }
 }

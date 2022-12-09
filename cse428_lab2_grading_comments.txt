@@ -23,7 +23,7 @@ in the code.
 
 The code compiled with no errors or warnings, and ran correctly	in my tests, except for:
 
--1 The usage message appears to have hard coded the name of the binary executable file
+-1 The usage message appears to have hard coded the name of the binary executable file    // fixed
 from the previous lab assignment, rather than using the C-style string that is passed
 in the 0th position of argv:
 
