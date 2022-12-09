@@ -1,0 +1,82 @@
+Authors: Ke Peng k.peng@wustl.edu, Zichao Liang liang.zichao@wustl.edu,
+         Siqian Hou h.siqian@wustl.edu
+Assignment: CSE 428 Lab 2
+Graded by: Chris Gill cdgill@wustl.edu
+Score: 83 / 100
+Comments:
+
+Good writeup, if a bit terse.
+
+Nicely structured code overall.
+
+-1 Your Hold 'Em logic needs to be broken up a bit more into smaller functions
+so it is more modular, though your Pinochle melds logic is reasonably modular
+(organized as cases of a switch statement) even if the function itself is pretty long.
+
+-3 Please avoid using hard coded numbers like 2, 3, and 4 directly in
+your code and instead please always use descriptively named const
+variables, enum labels, or #define symbols, like you did other places
+in the code.
+
+-3 Please make sure to comment all of your source and header files - some had no 
+   comments at all.
+
+The code compiled with no errors or warnings, and ran correctly	in my tests, except for:
+
+-1 The usage message appears to have hard coded the name of the binary executable file
+from the previous lab assignment, rather than using the C-style string that is passed
+in the 0th position of argv:
+
+Usage: ./lab1 Pinochle/HoldEm player1 player2 ...
+
+-3 The program did not print out the hand that was made from each player's cards and the
+board of common cards.
+
+-3 The program did not correctly order the names of the Hold 'Em players by the relative ranking of the hand that was made with their cards and the common board:
+
+Alice's hand:
+2H 10C 
+Bob's hand:
+9C KS 
+Charlie's hand:
+6C 9H 
+Dawn's hand:
+10H 7C 
+Erich's hand:
+5S 9D 
+Fiona's hand:
+7H QD 
+BOARD(flop): 
+8H 9S 7S 
+
+Erich's rank: Pair
+Charlie's rank: Pair
+Bob's rank: Pair
+Fiona's rank: Pair
+Dawn's rank: Pair
+Alice's rank: X-High
+
+Bob's hand should have been listed first: 9C KS 8H 9S 7S (9s with a king kicker);
+Charlie's hand should have been listed next: 6C 9H 8H 9S 7S (9s with 8,7,6 kickers);
+Erich's hand should have been listed next: 5S 9D 8H 9S 7S (9s with 8,7,5 kickers);
+Fiona's hand should have been listed next: 7H QD 8H 9S 7S (7s with a queen kicker);
+Dawn's hand should have been listed next: 10H 7C 8H 9S 7S (7s with a 10 kicker);
+
+-3 The program also did not correctly order the x-high hands:
+
+Alice's hand:
+5H 3C 
+Bob's hand:
+8D JH 
+Dawn's hand:
+5C QH  
+Fiona's hand:
+7H 3H 
+
+Bob's rank: X-High
+Dawn's rank: X-High
+Fiona's rank: X-High
+Alice's rank: X-High
+
+Of those, Dawn's hand should have been first, with a queen;
+Bob's should have been next, with a jack;
