@@ -16,7 +16,7 @@ so it is more modular, though your Pinochle melds logic is reasonably modular
 -3 Please avoid using hard coded numbers like 2, 3, and 4 directly in
 your code and instead please always use descriptively named const
 variables, enum labels, or #define symbols, like you did other places
-in the code.
+in the code. // partial fixed, need further discussion
 
 -3 Please make sure to comment all of your source and header files - some had no 
    comments at all.
@@ -30,7 +30,7 @@ in the 0th position of argv:
 Usage: ./lab1 Pinochle/HoldEm player1 player2 ...
 
 -3 The program did not print out the hand that was made from each player's cards and the
-board of common cards.
+board of common cards. // fixed
 
 -3 The program did not correctly order the names of the Hold 'Em players by the relative ranking of the hand that was made with their cards and the common board:
 
