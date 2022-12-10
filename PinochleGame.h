@@ -46,16 +46,24 @@ class PinochleGame : public Game {
     virtual int play();
 
    private:
+    Suit trump_suit;
+
+    bool bidding(std::vector<unsigned int>& bids);
     void suit_independent_evaluation(const cardSetType& hand,
                                      std::vector<PinochleMelds>& melds);
     void suit_dependent_evaluation(const cardSetType& hand,
                                    std::vector<PinochleMelds>& melds,
                                    Suit suit);
+
+    int hasSets(const std::vector<cardType>& cards, PinochleRank rank);
+
     bool isInsuitdoublerun(const std::vector<cardType>& cards, Suit suit);
     bool isInsuitrun(const std::vector<cardType>& cards, Suit suit);
     bool isInsuitmarriage(const std::vector<cardType>& cards, Suit suit);
     bool isOffsuitmarriage(const std::vector<cardType>& cards, Suit suit);
     bool isDix(const std::vector<cardType>& cards, Suit suit);
+
+    int computeScore(int playerIdx);
 };
 
 std::ostream& operator<<(std::ostream& os, const PinochleMelds& meld);
