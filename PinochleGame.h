@@ -47,6 +47,9 @@ class PinochleGame : public Game {
 
    private:
     Suit trump_suit;
+    int runningTally;
+    int contractTeam;
+    int firstPlayer;
 
     bool bidding(std::vector<unsigned int>& bids);
     void suit_independent_evaluation(const cardSetType& hand,
@@ -63,7 +66,16 @@ class PinochleGame : public Game {
     bool isOffsuitmarriage(const std::vector<cardType>& cards, Suit suit);
     bool isDix(const std::vector<cardType>& cards, Suit suit);
 
-    int computeScore(int playerIdx);
+    int computeMelds(int playerIdx);
+    int computeCards(int playerIdx);
+    void playTricks();
+    int playTrick(cardSetType& trick);
+
+    Suit playFirstCard(std::vector<cardType>& trickCards, std::vector<cardType>& cards);
+    bool hasSuit(const std::vector<cardType>& cards, Suit suit);
+    bool playHighestCard(std::vector<cardType>& trickCards, std::vector<cardType>& cards, Suit suit);
+    void playLowestCard(std::vector<cardType>& trickCards, std::vector<cardType>& cards, Suit suit);
+    void playAnyLowestCard(std::vector<cardType>& trickCards, std::vector<cardType>& cards);
 };
 
 std::ostream& operator<<(std::ostream& os, const PinochleMelds& meld);

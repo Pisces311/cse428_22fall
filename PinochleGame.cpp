@@ -7,7 +7,7 @@ unsigned int PinochleGame::points[] = {10,  20,  40,  40,  40,  60,   80,  100,
                                        150, 300, 400, 600, 800, 1000, 1500};
 
 PinochleGame::PinochleGame(int argc, const char** argv)
-    : Game(argc, argv), trump_suit(Suit::undefined) {
+    : Game(argc, argv), trump_suit(Suit::undefined), runningTally(0) {
     for (int i = startIndex; i < argc; ++i) {
         hands.push_back(cardSetType());
     }
@@ -47,6 +47,7 @@ void PinochleGame::printHands() {
         }
         std::cout << std::endl;
     }
+    std::cout << "Trump suit: " << trump_suit << std::endl;
 }
 
 void PinochleGame::collectHands() {
@@ -55,7 +56,7 @@ void PinochleGame::collectHands() {
     }
 }
 
-int PinochleGame::computeScore(int playerIdx) {
+int PinochleGame::computeMelds(int playerIdx) {
     int score = 0;
     std::vector<PinochleMelds> melds;
     suit_independent_evaluation(hands[playerIdx], melds);
@@ -63,6 +64,11 @@ int PinochleGame::computeScore(int playerIdx) {
     for (PinochleMelds meld : melds) {
         score += points[static_cast<int>(meld)];
     }
+    return score;
+}
+
+int PinochleGame::computeCards(int playerIdx) {
+    int score = 0;
     std::vector<cardType> cardSetType::*ptr = cardSetType::getCards();
     for (const cardType& card : hands[playerIdx].*ptr) {
         if (card.rank == PinochleRank::ten) {
@@ -81,20 +87,163 @@ int PinochleGame::computeScore(int playerIdx) {
 }
 
 bool PinochleGame::bidding(std::vector<unsigned int>& bids) {
-    
     int playerIdx = (dealer + 1) % players.size();
     int rounds = players.size();
     while (rounds--) {
-        bids[playerIdx] = computeScore(playerIdx);
+        bids[playerIdx] = computeMelds(playerIdx) + computeCards(playerIdx);
         playerIdx = (playerIdx + 1) % players.size();
     }
     int team1Score = bids[0] + bids[2];
     int team2Score = bids[1] + bids[3];
     if (team1Score == team2Score) {
         return false;
+    } else if (team1Score > team2Score) {
+        std::cout << "Team 1 wins the bid." << std::endl;
+        contractTeam = 1;
+        firstPlayer = bids[0] >= bids[2] ? 0 : 2;
+        runningTally = computeMelds(0) + computeMelds(2);
+    } else {
+        std::cout << "Team 2 wins the bid." << std::endl;
+        contractTeam = 2;
+        firstPlayer = bids[1] >= bids[3] ? 1 : 3;
+        runningTally = computeMelds(1) + computeMelds(3);
+    }
+    return true;
+}
+
+Suit PinochleGame::playFirstCard(std::vector<cardType>& trickCards,
+                                 std::vector<cardType>& cards) {
+    Suit retSuit;
+    PinochleRank highestRank = PinochleRank::nine;
+    for (const cardType& card : cards) {
+        if (card.rank > highestRank) {
+            retSuit = trump_suit;
+            highestRank = card.rank;
+        } else if (card.rank == highestRank && card.suit != trump_suit) {
+            if (card.suit == trump_suit || card.suit > retSuit) {
+                retSuit = card.suit;
+            }
+        }
     }
 
+    for (auto it = cards.begin(); it != cards.end(); it++) {
+        if (it->suit == retSuit && it->rank == highestRank) {
+            cards.erase(it);
+            break;
+        }
+    }
+
+    trickCards.emplace_back(highestRank, retSuit);
+
+    return retSuit;
+}
+
+// play the highest card of the given suit, if the rank is higher than every
+// card in the trick of the given suit
+bool PinochleGame::playHighestCard(std::vector<cardType>& trickCards,
+                                   std::vector<cardType>& cards, Suit suit) {
+    PinochleRank highestRank = PinochleRank::nine;
+    for (const cardType& card : cards) {
+        if (card.suit == suit && card.rank > highestRank) {
+            highestRank = card.rank;
+        }
+    }
+
+    for (const cardType& card : trickCards) {
+        if (card.suit == suit && card.rank > highestRank) {
+            return false;
+        }
+    }
+
+    for (auto it = cards.begin(); it != cards.end(); it++) {
+        if (it->suit == suit && it->rank == highestRank) {
+            cards.erase(it);
+            break;
+        }
+    }
+
+    trickCards.emplace_back(highestRank, suit);
+
     return true;
+}
+
+// play the lowest card of the given suit
+void PinochleGame::playLowestCard(std::vector<cardType>& trickCards,
+                                  std::vector<cardType>& cards, Suit suit) {
+    PinochleRank lowestRank = PinochleRank::ace;
+    for (const cardType& card : cards) {
+        if (card.suit == suit && card.rank < lowestRank) {
+            lowestRank = card.rank;
+        }
+    }
+
+    for (auto it = cards.begin(); it != cards.end(); it++) {
+        if (it->suit == suit && it->rank == lowestRank) {
+            cards.erase(it);
+            break;
+        }
+    }
+
+    trickCards.emplace_back(lowestRank, suit);
+}
+
+void PinochleGame::playAnyLowestCard(std::vector<cardType>& trickCards,
+                                     std::vector<cardType>& cards) {
+    PinochleRank lowestRank = PinochleRank::ace;
+
+    for (const cardType& card : cards) {
+        if (card.rank < lowestRank) {
+            lowestRank = card.rank;
+        }
+    }
+
+    Suit lowestSuit = Suit::undefined;
+    for (auto it = cards.begin(); it != cards.end(); it++) {
+        if (it->rank == lowestRank) {
+            lowestSuit = it->suit;
+            cards.erase(it);
+            break;
+        }
+    }
+
+    trickCards.emplace_back(lowestRank, lowestSuit);
+}
+
+// return the winner of this round
+int PinochleGame::playTrick(cardSetType& trick) {
+    int playerIdx = firstPlayer;
+    std::vector<cardType> cardSetType::*ptr = cardSetType::getCards();
+
+    // play the first card
+    Suit leadingSuit = playFirstCard(trick.*ptr, hands[firstPlayer].*ptr);
+
+    playerIdx = (playerIdx + 1) % players.size();
+    do {
+        if (leadingSuit == trump_suit) {
+            if (hasSuit(hands[playerIdx].*ptr, trump_suit)) {
+                if (!playHighestCard(trick.*ptr, hands[playerIdx].*ptr,
+                                     trump_suit)) {
+                    playLowestCard(trick.*ptr, hands[playerIdx].*ptr,
+                                   trump_suit);
+                }
+            } else {
+                playAnyLowestCard(trick.*ptr, hands[playerIdx].*ptr);
+            }
+        }
+
+        playerIdx = (playerIdx + 1) % players.size();
+    } while (playerIdx != firstPlayer);
+    return -1;
+}
+
+void PinochleGame::playTricks() {
+    int rounds = 12;
+    cardSetType trick;
+    while (rounds--) {
+        int winner = playTrick(trick);
+        firstPlayer = winner;
+        deck.collect(trick);
+    }
 }
 
 int PinochleGame::play() {
@@ -104,15 +253,27 @@ int PinochleGame::play() {
         printHands();
         std::vector<unsigned int> bids(players.size());
         if (!bidding(bids)) {
+            std::cout << "Bidding failed. Re-dealing." << std::endl;
+            collectHands();
             continue;
         }
-        collectHands();
+        // play tricks
+        playTricks();
         if (continuePrompt()) {
             break;
         }
         dealer = (dealer + 1) % players.size();
     }
     return SUCCESS;
+}
+
+bool PinochleGame::hasSuit(const std::vector<cardType>& cards, Suit suit) {
+    for (const cardType& card : cards) {
+        if (card.suit == suit) {
+            return true;
+        }
+    }
+    return false;
 }
 
 int PinochleGame::hasSets(const std::vector<cardType>& cards,
