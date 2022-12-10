@@ -9,6 +9,7 @@ Good writeup, if a bit terse.
 
 Nicely structured code overall.
 
+// fixed
 -1 Your Hold 'Em logic needs to be broken up a bit more into smaller functions
 so it is more modular, though your Pinochle melds logic is reasonably modular
 (organized as cases of a switch statement) even if the function itself is pretty long.

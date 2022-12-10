@@ -39,6 +39,7 @@ class HoldEmGame : public Game {
     virtual void deal();
     void printHands();
     void printBoards();
+    void printSortedHands();
     void collectHands();
     void collectBoards();
 
@@ -57,11 +58,26 @@ class HoldEmGame : public Game {
     };
 
     HoldEmGame(int argc, const char **argv);
+
+    bool static sortPair(const cardSetType &hand1, const cardSetType &hand2);
+    bool static sortTwoPair(const cardSetType &hand1, const cardSetType &hand2);
+    bool static sortAnyThree(const cardSetType &hand1, const cardSetType &hand2);
+    bool static sortAnyStraight(const cardSetType &hand1, const cardSetType &hand2);
+    bool static sortFlushXhigh(const cardSetType &hand1, const cardSetType &hand2);
+    bool static sortFourOfAKind(const cardSetType &hand1, const cardSetType &hand2);
+
     virtual ~HoldEmGame() = default;
     virtual int play();
 
    private:
     HoldEmHandRank holdem_hand_evaluation(const cardSetType &hand);
+    bool isFlush(const std::vector<cardType> &cards);
+    bool isStraight(const std::vector<cardType> &cards);
+    bool isFourOfAKind(const std::vector<cardType> &cards);
+    bool isFullHouse(const std::vector<cardType> &cards);
+    bool isThreeOfAKind(const std::vector<cardType> &cards);
+    bool isTwoPair(const std::vector<cardType> &cards);
+    bool isPair(const std::vector<cardType> &cards);
 };
 
 std::ostream &operator<<(std::ostream &os, const HoldEmHandRank &rank);
