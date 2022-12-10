@@ -254,35 +254,39 @@ bool operator<(const HoldEmGame::HoldEmGameStruct& obj1,
     std::reverse((hand2.*cards).begin(), (hand2.*cards).end());
 
     // Both pair
+    cardSetType handCopy1 = hand1;
+    cardSetType handCopy2 = hand2;
     if (obj1.rank == HoldEmHandRank::pair && obj1.rank == obj2.rank) {
         // get the pair rank
         HoldEmRank pairRank1, pairRank2;
-        std::vector<cardType>::const_iterator first1, last1, first2, last2;
         for (size_t i = 1; i < (hand1.*cards).size(); i++) {
             if ((hand1.*cards)[i - 1].rank == (hand1.*cards)[i].rank) {
                 pairRank1 = (hand1.*cards)[i].rank;
-                first1 = (hand1.*cards).begin() + (i - 1);
-                last1 = (hand1.*cards).begin() + i;
+                // remove pair cards
+                (handCopy1.*cards).erase((handCopy1.*cards).begin() + (i-1), (handCopy1.*cards).begin() + (i+1));
             }
             if ((hand2.*cards)[i - 1].rank == (hand2.*cards)[i].rank) {
                 pairRank2 = (hand2.*cards)[i].rank;
-                first2 = (hand2.*cards).begin() + (i - 1);
-                last2 = (hand2.*cards).begin() + i;
+                // remove pair cards
+                (handCopy2.*cards).erase((handCopy2.*cards).begin() + (i-1), (handCopy2.*cards).begin() + (i+1));
             }
         }
         // compare pair rank
         if (pairRank1 < pairRank2) {
             return true;
         }
+        else if (pairRank1 > pairRank2) {
+            return false;
+        }
         // compare other cards rank from high to low
         else {
-            // get the other cards
-            std::vector<cardType> nonPairHand1(first1, last1);
-            std::vector<cardType> nonPairHand2(first2, last2);
-            // compare
-            for (size_t i = 0; i < nonPairHand1.size(); i++) {
-                if (nonPairHand1[i].rank < nonPairHand2[i].rank) {
+            for (size_t i = 0; i < (handCopy1.*cards).size(); i++) {
+                if ((handCopy1.*cards)[i].rank < (handCopy2.*cards)[i].rank) {
                     return true;
+                }
+                else if ((handCopy1.*cards)[i].rank > (handCopy2.*cards)[i].rank)
+                {
+                    return false;
                 }
             }
         }
@@ -305,16 +309,17 @@ bool operator<(const HoldEmGame::HoldEmGameStruct& obj1,
             if (pairRank1[i] < pairRank2[i]) {
                 return true;
             }
+            else if (pairRank1[i] > pairRank2[i]) {
+                return false;
+            }
         }
-        // get the otehr card
+        // get the other card
         HoldEmRank nonPairRank1, nonPairRank2;
         for (size_t i = 0; i < (hand1.*cards).size(); i++) {
-            if (std::find(pairRank1.begin(), pairRank1.end(),
-                          (hand1.*cards)[i].rank) == pairRank1.end()) {
+            if ((hand1.*cards)[i].rank != pairRank1[0] && (hand1.*cards)[i].rank != pairRank1[1]) {
                 nonPairRank1 = (hand1.*cards)[i].rank;
             }
-            if (std::find(pairRank2.begin(), pairRank2.end(),
-                          (hand2.*cards)[i].rank) == pairRank2.end()) {
+            if ((hand2.*cards)[i].rank != pairRank2[0] && (hand2.*cards)[i].rank != pairRank2[1]) {
                 nonPairRank2 = (hand2.*cards)[i].rank;
             }
         }
@@ -362,6 +367,9 @@ bool operator<(const HoldEmGame::HoldEmGameStruct& obj1,
         for (size_t i = 0; i < (hand1.*cards).size(); i++) {
             if ((hand1.*cards)[i].rank < (hand2.*cards)[i].rank) {
                 return true;
+            }
+            else if ((hand1.*cards)[i].rank > (hand2.*cards)[i].rank) {
+                return false;
             }
         }
     }
