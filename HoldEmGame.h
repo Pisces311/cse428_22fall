@@ -49,12 +49,13 @@ class HoldEmGame : public Game {
         cardSetType cardSet;
         std::string playerName;
         HoldEmHandRank rank;
+        size_t playerIdx;
 
         HoldEmGameStruct(cardSetType givenCardSet, std::string &givenPlayerName,
-                         HoldEmHandRank givenRank)
+                         HoldEmHandRank givenRank, size_t playerIdx)
             : cardSet(givenCardSet),
               playerName(givenPlayerName),
-              rank(givenRank) {}
+              rank(givenRank), playerIdx(playerIdx) {}
     };
 
     HoldEmGame(int argc, const char **argv);

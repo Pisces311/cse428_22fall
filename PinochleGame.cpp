@@ -1,6 +1,7 @@
 #include "PinochleGame.h"
 
 #include <algorithm>
+#include <map>
 
 unsigned int PinochleGame::points[] = {10,  20,  40,  40,  40,  60,   80,  100,
                                        150, 300, 400, 600, 800, 1000, 1500};
@@ -12,19 +13,23 @@ PinochleGame::PinochleGame(int argc, const char** argv) : Game(argc, argv) {
 }
 
 void PinochleGame::deal() {
-    int playerIdx = 0, cardCnt = 0;
+    int playerIdx = (dealer + 1) % players.size(), cardCnt = 0;
     while (!deck.is_empty()) {
         deck >> hands[playerIdx];
         if (++cardCnt == numInEachPacket) {
             cardCnt = 0;
-            playerIdx = (playerIdx + 1) % hands.size();
+            playerIdx = (playerIdx + 1) % players.size();
         }
     }
 }
 
 void PinochleGame::printHands() {
     for (size_t i = 0; i < hands.size(); i++) {
-        std::cout << players[i] << "'s hand:" << std::endl;
+        std::cout << players[i];
+        if (i == dealer) {
+            std::cout << "*";
+        }
+        std::cout << "'s hand:" << std::endl;
         hands[i].print(std::cout, sizeInEachPacket);
         std::vector<PinochleMelds> melds;
         suit_independent_evaluation(hands[i], melds);
@@ -51,6 +56,7 @@ int PinochleGame::play() {
         if (continuePrompt()) {
             break;
         }
+        dealer = (dealer + 1) % players.size();
     }
     return SUCCESS;
 }
@@ -127,6 +133,107 @@ void PinochleGame::suit_independent_evaluation(
         case 1:
             melds.push_back(PinochleMelds::pinochle);
             break;
+    }
+}
+
+bool PinochleGame::isInsuitdoublerun(const std::vector<cardType>& cards,
+                                     Suit suit) {
+    std::map<PinochleRank, int> rankCount;
+    std::vector<PinochleRank> deck = {PinochleRank::ten, PinochleRank::jack,
+                                      PinochleRank::queen, PinochleRank::king,
+                                      PinochleRank::ace};
+    for (const cardType& card : cards) {
+        if (card.suit == suit && card.rank != PinochleRank::nine) {
+            rankCount[card.rank]++;
+        }
+    }
+    for (PinochleRank rank : deck) {
+        if (rankCount[rank] < 2) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool PinochleGame::isInsuitrun(const std::vector<cardType>& cards, Suit suit) {
+    std::map<PinochleRank, int> rankCount;
+    std::vector<PinochleRank> deck = {PinochleRank::ten, PinochleRank::jack,
+                                      PinochleRank::queen, PinochleRank::king,
+                                      PinochleRank::ace};
+    for (const cardType& card : cards) {
+        if (card.suit == suit && card.rank != PinochleRank::nine) {
+            rankCount[card.rank]++;
+        }
+    }
+    for (PinochleRank rank : deck) {
+        if (rankCount[rank] < 1) {
+            return false;
+        }
+    }
+    return true;
+}
+
+bool PinochleGame::isInsuitmarriage(const std::vector<cardType>& cards,
+                                    Suit suit) {
+    bool hasQueen = false, hasKing = false;
+    for (const cardType& card : cards) {
+        if (card.suit == suit) {
+            if (card.rank == PinochleRank::queen) {
+                hasQueen = true;
+            } else if (card.rank == PinochleRank::king) {
+                hasKing = true;
+            }
+        }
+    }
+    return hasQueen && hasKing;
+}
+
+bool PinochleGame::isOffsuitmarriage(const std::vector<cardType>& cards,
+                                     Suit suit) {
+    std::vector<Suit> suits = {Suit::clubs, Suit::diamonds, Suit::hearts,
+                               Suit::spades};
+    suits.erase(std::remove(suits.begin(), suits.end(), suit), suits.end());
+
+    for (Suit s : suits) {
+        if (isInsuitmarriage(cards, s)) {
+            return true;
+        }
+    }
+    return false;
+}
+
+bool PinochleGame::isDix(const std::vector<cardType>& cards, Suit suit) {
+    for (const cardType& card : cards) {
+        if (card.suit == suit && card.rank == PinochleRank::nine) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void PinochleGame::suit_dependent_evaluation(const cardSetType& hand,
+                                             std::vector<PinochleMelds>& melds,
+                                             Suit suit) {
+    cardSetType handCopy = hand;
+    std::vector<cardType> cardSetType::*cards = cardSetType::getCards();
+
+    // insuitdoublerun & insuitrun
+    if (isInsuitdoublerun(handCopy.*cards, suit)) {
+        melds.push_back(PinochleMelds::insuitdoublerun);
+    } else if (isInsuitrun(handCopy.*cards, suit)) {
+        melds.push_back(PinochleMelds::insuitrun);
+    }
+
+    // insuitmarriage & offsuitmarriage
+    if (isInsuitmarriage(handCopy.*cards, suit)) {
+        melds.push_back(PinochleMelds::insuitmarriage);
+    } else if (isOffsuitmarriage(handCopy.*cards, suit)) {
+        melds.push_back(PinochleMelds::offsuitmarriage);
+    }
+
+    // dix
+    if (isDix(handCopy.*cards, suit)) {
+        melds.push_back(PinochleMelds::dix);
     }
 }
 
