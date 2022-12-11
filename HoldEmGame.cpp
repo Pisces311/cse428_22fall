@@ -7,6 +7,7 @@ HoldEmGame::HoldEmGame(int argc, const char **argv) : Game(argc, argv) {
     for (int i = startIndex; i < argc; ++i) {
         hands.push_back(cardSetType());
     }
+    scores.assign(players.size(), initialScore);
 }
 
 void HoldEmGame::deal() {
@@ -45,6 +46,7 @@ void HoldEmGame::printHands() {
         std::cout << "'s hand:" << std::endl;
         hands[i].print(std::cout, numPlayerHands);
     }
+    std::cout << "" << std::endl;
 }
 
 void HoldEmGame::printBoards() {
@@ -52,7 +54,7 @@ void HoldEmGame::printBoards() {
 }
 
 void HoldEmGame::printSortedHands() {
-    std::vector<HoldEmGameStruct> structs;
+    structs.clear();
     for (size_t i = 0; i < players.size(); i++) {
         structs.emplace_back(hands[i], players[i], HoldEmHandRank::undefined,
                              i);
@@ -71,19 +73,20 @@ void HoldEmGame::printSortedHands() {
     }
 
     // sort by player's cardset rank
-    std::sort(structs.begin(), structs.end(), operator<);
-    std::reverse(structs.begin(), structs.end());
+    std::vector<HoldEmGameStruct> sortedStructs = structs;
+    std::sort(sortedStructs.begin(), sortedStructs.end(), operator<);
+    std::reverse(sortedStructs.begin(), sortedStructs.end());
     std::cout << "" << std::endl;
-    for (size_t i = 0; i < structs.size(); i++) {
-        std::cout << structs[i].playerName;
-        if (structs[i].playerIdx == dealer) {
+    for (size_t i = 0; i < sortedStructs.size(); i++) {
+        std::cout << sortedStructs[i].playerName;
+        if (sortedStructs[i].playerIdx == dealer) {
             std::cout << "*";
         }
         std::cout << ": ";
-        for (size_t j = 0; j < ((structs[i].cardSet).*cards).size(); j++) {
-            std::cout << ((structs[i].cardSet).*cards)[j] << " ";
+        for (size_t j = 0; j < ((sortedStructs[i].cardSet).*cards).size(); j++) {
+            std::cout << ((sortedStructs[i].cardSet).*cards)[j] << " ";
         }
-        std::cout << "(" << structs[i].rank << ")" << std::endl;
+        std::cout << "(" << sortedStructs[i].rank << ")" << std::endl;
     }
     std::cout << "" << std::endl;
 }
@@ -92,7 +95,7 @@ HoldEmGame::HoldEmGameStruct HoldEmGame::findBestHand(const cardSetType &hand,
         std::string &givenPlayerName, size_t playerIdx) {
     std::vector<cardType> cardSetType::*cards = cardSetType::getCards();
     size_t numCards = (hand.*cards).size();
-    std::vector<HoldEmGameStruct> structs;
+    std::vector<HoldEmGameStruct> tempStructs;
 
     // get all combinations of hand
     if (numCards == numCardsAfterTurn) {
@@ -101,7 +104,7 @@ HoldEmGame::HoldEmGameStruct HoldEmGame::findBestHand(const cardSetType &hand,
             // remove 1 card from all 6 cards
             (handCopy.*cards).erase((handCopy.*cards).begin() + i);
             HoldEmHandRank rank = holdem_hand_evaluation(handCopy);
-            structs.emplace_back(handCopy, givenPlayerName, rank, playerIdx);
+            tempStructs.emplace_back(handCopy, givenPlayerName, rank, playerIdx);
         }
     }
     else if (numCards == numCardsAfterRiver) {
@@ -112,14 +115,314 @@ HoldEmGame::HoldEmGameStruct HoldEmGame::findBestHand(const cardSetType &hand,
                 (handCopy.*cards).erase((handCopy.*cards).begin() + i);
                 (handCopy.*cards).erase((handCopy.*cards).begin() + (j-1));
                 HoldEmHandRank rank = holdem_hand_evaluation(handCopy);
-                structs.emplace_back(handCopy, givenPlayerName, rank, playerIdx);
+                tempStructs.emplace_back(handCopy, givenPlayerName, rank, playerIdx);
             }
         }
     }
     // get the best hand for current player
-    std::sort(structs.begin(), structs.end(), operator<);
-    HoldEmGameStruct bestHand = structs.back();
+    std::sort(tempStructs.begin(), tempStructs.end(), operator<);
+    HoldEmGameStruct bestHand = tempStructs.back();
     return bestHand;
+}
+
+bool HoldEmGame::bet() {
+    betChips.assign(players.size(), 0);
+    raiseTimes.assign(players.size(), 0);
+
+    bool end = false;
+
+    switch (state)
+    {
+    case HoldEmState::flop:
+        end = preflopBet();
+        break;
+    case HoldEmState::turn:
+    case HoldEmState::river:
+    case HoldEmState::undefined:
+        end = postflopBet();
+        break;
+    default:
+        break;
+    }
+
+    addToPot();
+    std::cout << "Pot: " << commonPot << std::endl;
+    return end;
+}
+
+void HoldEmGame::addToPot() {
+    for (size_t i = 0; i < players.size(); i++)
+    {
+        commonPot += betChips[i];
+    }
+}
+
+void HoldEmGame::processChips(const int &currPlayerIdx, const unsigned int &diffBet) {
+    if (scores[currPlayerIdx] < diffBet) {
+        betChips[currPlayerIdx] += scores[currPlayerIdx];
+        scores[currPlayerIdx] = 0;
+    }
+    else {
+        betChips[currPlayerIdx] += diffBet;
+        scores[currPlayerIdx] -= diffBet;
+    }
+}
+
+// TODO: Split pots
+// TODO: Remove player with 0 scores after split pots
+void HoldEmGame::calculateScore() {
+    // for (size_t i = 0; i < players.size(); i++) {
+        
+    // }
+    std::cout << "----------Calculating scores!----------" << std::endl;
+}
+
+int HoldEmGame::evaluateEndRoundOrGame() {
+    // Only one unfold -> end game
+    if (std::count(foldState.begin(), foldState.end(), false) == 1) {
+        return endGame;
+    }
+    // All unfold hve 0 scores(chips) left -> end game
+    bool scoresEvaluate = true;
+    for (size_t i = 0; i < players.size(); i++) {
+        if (!foldState[i]) {
+            if (scores[i] != 0) {
+                scoresEvaluate = false;
+                break;
+            }
+        }
+    }
+    if (scoresEvaluate) {
+        return endGame;
+    }
+    // All unfold are called -> end this round
+    bool calledEvaluate = true;
+    for (size_t i = 0; i < players.size(); i++) {
+        if (!foldState[i] && !callState[i]) {
+            calledEvaluate = false;
+            break;
+        }
+    }
+    if (calledEvaluate) {
+        return endRound;
+    }
+    return continueBet;
+}
+
+void HoldEmGame::actRaiseOrCall(const HoldEmRaiseCallState &raiseCallState, const int &currPlayerIdx) {
+    int largestBet = *std::max_element(betChips.begin(), betChips.end());
+    if ((raiseCallState == HoldEmRaiseCallState::raiseAlways) || 
+        ((raiseCallState == HoldEmRaiseCallState::raiseOnce) && raiseTimes[currPlayerIdx] == 0)) {
+        int raiseAim;
+        if ((state == HoldEmState::flop) || (state == HoldEmState::turn)) {
+            raiseAim = largestBet + smallRaise;
+        }
+        else {
+            raiseAim = largestBet + bigRaise;
+        }
+        unsigned int diffBet = raiseAim - betChips[currPlayerIdx];
+        processChips(currPlayerIdx, diffBet);
+        raiseTimes[currPlayerIdx] += 1;
+    }
+    else if ((raiseCallState == HoldEmRaiseCallState::raiseOnce) || 
+        (raiseCallState == HoldEmRaiseCallState::callAlways)) {
+        unsigned int diffBet = largestBet - betChips[currPlayerIdx];
+        processChips(currPlayerIdx, diffBet);
+        callState[currPlayerIdx] = true;
+    }
+}
+
+// FIXME: player with 0 scores(unsigned int) will overflow (small/big blind), 
+// can be fixed after finish calculate score func (remove 0 score players)
+bool HoldEmGame::preflopBet() {
+    commonPot = 0;
+    foldState.assign(players.size(), false);
+    callState = foldState;
+    int smallBlindIdx = (dealer + 1) % players.size();
+    int bigBlindIdx = (smallBlindIdx + 1) % players.size();
+    betChips[smallBlindIdx] = smallBlindBet;
+    betChips[bigBlindIdx] = bigBlindBet;
+    scores[smallBlindIdx] -= smallBlindBet;
+    scores[bigBlindIdx] -= bigBlindBet;
+    int currPlayerIdx = (bigBlindIdx + 1) % players.size();
+
+    while (true)
+    {   
+        if (foldState[currPlayerIdx] || scores[currPlayerIdx] == 0) {
+            callState[currPlayerIdx] = true;
+            currPlayerIdx = (currPlayerIdx + 1) % players.size();
+            continue;
+        }
+
+        HoldEmRaiseCallState preflopState = evaluatePreflopState(hands[currPlayerIdx]);
+
+        std::cout << static_cast<int>(preflopState) << std::endl;
+
+        actRaiseOrCall(preflopState, currPlayerIdx);
+        if (preflopState == HoldEmRaiseCallState::foldOrCheck) {
+            foldState[currPlayerIdx] = true;
+            callState[currPlayerIdx] = true;
+        }
+
+        for (size_t i = 0; i < players.size(); i++) {
+            std::cout << players[i] << ": " << scores[i] << ", " << betChips[i];
+            std::cout << ", fo: " << foldState[i] << ", ca: " << callState[i];
+            std::cout << ", " << raiseTimes[i] << std::endl;
+        }
+
+        int evaluation = evaluateEndRoundOrGame();
+        if (evaluation == endGame) {
+            return true;
+        }
+        else if (evaluation == endRound) {
+            return false;
+        }
+        currPlayerIdx = (currPlayerIdx + 1) % players.size();
+    }
+    return false;
+}
+
+bool HoldEmGame::postflopBet() {
+    callState = foldState;
+    int currPlayerIdx = (dealer + 1) % players.size();
+
+    while (true) {
+        if (foldState[currPlayerIdx] || scores[currPlayerIdx] == 0) {
+            callState[currPlayerIdx] = true;
+            currPlayerIdx = (currPlayerIdx + 1) % players.size();
+            continue;
+        }
+
+        HoldEmRaiseCallState postflopState;
+        switch (state)
+        {
+        case HoldEmState::turn:
+            postflopState = evaluatePostFlopState(structs[currPlayerIdx]);
+            break;
+        case HoldEmState::river:
+            postflopState = evaluatePostTurnState(structs[currPlayerIdx]);
+            break;
+        case HoldEmState::undefined:
+            postflopState = evaluatePostRiverState(structs[currPlayerIdx]);
+            break;
+        default:
+            postflopState = HoldEmRaiseCallState::undefined;
+            break;
+        }
+
+        std::cout << static_cast<int>(postflopState) << std::endl;
+
+        actRaiseOrCall(postflopState, currPlayerIdx);
+        if (postflopState == HoldEmRaiseCallState::foldOrCheck) {
+            if (std::reduce(raiseTimes.begin(), raiseTimes.end()) > 0) {
+                foldState[currPlayerIdx] = true;
+            }
+            callState[currPlayerIdx] = true;
+        }
+
+        for (size_t i = 0; i < players.size(); i++) {
+            std::cout << players[i] << ": " << scores[i] << ", " << betChips[i];
+            std::cout << ", fo: " << foldState[i] << ", ca: " << callState[i];
+            std::cout << ", " << raiseTimes[i] << std::endl;
+        }
+
+        int evaluation = evaluateEndRoundOrGame();
+        if (evaluation == endGame) {
+            return true;
+        }
+        else if (evaluation == endRound) {
+            return false;
+        }
+        currPlayerIdx = (currPlayerIdx + 1) % players.size();
+    }
+    return false;
+}
+
+HoldEmRaiseCallState HoldEmGame::evaluatePreflopState(const cardSetType &hand) {
+    std::vector<cardType> cardSetType::*cards = cardSetType::getCards();
+    if ((hand.*cards)[0].rank == (hand.*cards)[1].rank) {
+        if ((hand.*cards)[0].rank == HoldEmRank::ace) {
+            return HoldEmRaiseCallState::raiseAlways;
+        }
+        else if ((hand.*cards)[0].rank == HoldEmRank::king || 
+            (hand.*cards)[0].rank == HoldEmRank::queen ||
+            (hand.*cards)[0].rank == HoldEmRank::jack) {
+            return HoldEmRaiseCallState::raiseOnce;
+        }
+        else {
+            return HoldEmRaiseCallState::callAlways;
+        }
+    }
+    if ((hand.*cards)[0].suit == (hand.*cards)[1].suit) {
+        return HoldEmRaiseCallState::callAlways;
+    }
+    int rank1 = static_cast<int>((hand.*cards)[0].rank);
+    int rank2 = static_cast<int>((hand.*cards)[1].rank);
+    int minRank = static_cast<int>(HoldEmRank::three);
+    if (((rank1 - rank2) == 1 && rank2 > minRank) || ((rank2 - rank1) == 1 && rank1 > minRank)) {
+        return HoldEmRaiseCallState::callAlways;
+    }
+    return HoldEmRaiseCallState::foldOrCheck;
+}
+
+HoldEmRaiseCallState HoldEmGame::evaluatePostFlopState(const HoldEmGameStruct &currStruct) {
+    HoldEmHandRank handRank = currStruct.rank;
+    if (static_cast<int>(handRank) >= static_cast<int>(HoldEmHandRank::threeofakind)) {
+        return HoldEmRaiseCallState::raiseAlways;
+    }
+    else if (handRank == HoldEmHandRank::twopair) {
+        return HoldEmRaiseCallState::raiseOnce;
+    }
+    else if (handRank == HoldEmHandRank::pair) {
+        return HoldEmRaiseCallState::callAlways;
+    }
+    return evaluateFourCards(currStruct);
+}
+
+HoldEmRaiseCallState HoldEmGame::evaluatePostTurnState(const HoldEmGameStruct &currStruct) {
+    HoldEmHandRank handRank = currStruct.rank;
+    if (static_cast<int>(handRank) >= static_cast<int>(HoldEmHandRank::straight)) {
+        return HoldEmRaiseCallState::raiseAlways;
+    }
+    else if (handRank == HoldEmHandRank::threeofakind) {
+        return HoldEmRaiseCallState::raiseOnce;
+    }
+    else if (handRank == HoldEmHandRank::pair || handRank == HoldEmHandRank::twopair) {
+        return HoldEmRaiseCallState::callAlways;
+    }
+    return evaluateFourCards(currStruct);
+}
+
+HoldEmRaiseCallState HoldEmGame::evaluatePostRiverState(const HoldEmGameStruct &currStruct) {
+    HoldEmHandRank handRank = currStruct.rank;
+    if (static_cast<int>(handRank) >= static_cast<int>(HoldEmHandRank::straight)) {
+        return HoldEmRaiseCallState::raiseAlways;
+    }
+    else if (handRank == HoldEmHandRank::threeofakind) {
+        return HoldEmRaiseCallState::raiseOnce;
+    }
+    else if (handRank == HoldEmHandRank::twopair) {
+        return HoldEmRaiseCallState::callAlways;
+    }
+    return HoldEmRaiseCallState::foldOrCheck;
+}
+
+HoldEmRaiseCallState HoldEmGame::evaluateFourCards(const HoldEmGameStruct &currStruct) {
+    for (size_t i = 0; i < numFinalHands; i++) {
+        std::vector<cardType> cardSetType::*cards = cardSetType::getCards();
+        cardSetType handCopy = currStruct.cardSet;
+        // remove 1 card from all 5 cards
+        (handCopy.*cards).erase((handCopy.*cards).begin() + i);
+        if (isFlush(handCopy.*cards)) {
+            return HoldEmRaiseCallState::callAlways;
+        }
+        std::sort((handCopy.*cards).begin(), (handCopy.*cards).end(),
+            compareByRank<HoldEmRank, Suit>);
+        if (isStraight(handCopy.*cards) && (handCopy.*cards).back().rank != HoldEmRank::ace) {
+            return HoldEmRaiseCallState::callAlways;
+        }
+    }
+    return HoldEmRaiseCallState::foldOrCheck;
 }
 
 void HoldEmGame::collectHands() {
@@ -130,38 +433,66 @@ void HoldEmGame::collectHands() {
 
 void HoldEmGame::collectBoards() { deck.collect(commonBoards); }
 
+bool HoldEmGame::endingGame() {
+    calculateScore();
+    collectHands();
+    collectBoards();
+    dealer = (dealer + 1) % players.size();
+    return continuePrompt();
+}
+
 int HoldEmGame::play() {
     while (true) {
         deck.shuffle();
         state = HoldEmState::preflop;
-        deal();
+        deal(); // state: flop
         printHands();
+        if (bet()) {
+            if (endingGame()) {
+                return SUCCESS;
+            }
+            else {
+                continue;
+            }
+        }
 
-        deal();
+        deal(); // state: turn
         std::cout << "BOARD(flop): " << std::endl;
         printBoards();
-
         printSortedHands();
+        if (bet()) {
+            if (endingGame()) {
+                return SUCCESS;
+            }
+            else {
+                continue;
+            }
+        }
 
-        deal();
+        deal(); // state: river
         std::cout << "BOARD(turn): " << std::endl;
         printBoards();
-
         printSortedHands();
+        if (bet()) {
+            if (endingGame()) {
+                return SUCCESS;
+            }
+            else {
+                continue;
+            }
+        }
 
-        deal();
+        deal(); // state: undefined
         std::cout << "BOARD(river): " << std::endl;
         printBoards();
-
         printSortedHands();
-
-        collectHands();
-        collectBoards();
-
-        if (continuePrompt()) {
-            break;
+        bet();
+        if (endingGame()) {
+            return SUCCESS;
         }
-        dealer = (dealer + 1) % players.size();
+        else {
+            continue;
+        }
     }
     return SUCCESS;
 }

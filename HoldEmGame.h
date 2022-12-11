@@ -20,6 +20,14 @@ enum class HoldEmHandRank {
     undefined
 };
 
+enum class HoldEmRaiseCallState {
+    raiseAlways,
+    raiseOnce,
+    callAlways,
+    foldOrCheck,
+    undefined
+};
+
 class HoldEmGame : public Game {
    public:
     using cardType = Card<HoldEmRank, Suit>;
@@ -30,6 +38,23 @@ class HoldEmGame : public Game {
     HoldEmDeck deck;
     std::vector<cardSetType> hands;
     cardSetType commonBoards;
+
+    std::vector<bool> foldState;
+    std::vector<bool> callState;
+    std::vector<int> raiseTimes;
+    std::vector<unsigned int> betChips;
+
+    int initialScore = 60;
+    const int smallBlindBet = 1;
+    const int bigBlindBet = 2;
+    int commonPot;
+
+    const unsigned int smallRaise = 2;
+    const unsigned int bigRaise = 4;
+
+    const int continueBet = -1;
+    const int endRound = 0;
+    const int endGame = 1;
 
     const size_t numPreflopRound = 2;
     const size_t numCommonBoardsBatch = 3;
@@ -73,6 +98,23 @@ class HoldEmGame : public Game {
     virtual int play();
 
    private:
+    std::vector<HoldEmGameStruct> structs;
+
+    bool endingGame();
+    void calculateScore();
+    int evaluateEndRoundOrGame();
+    void processChips(const int &currPlayerIdx, const unsigned int &diffBet);
+    void addToPot();
+    void actRaiseOrCall(const HoldEmRaiseCallState &raiseCallState, const int &currPlayerIdx);
+    bool bet();
+    bool preflopBet();
+    bool postflopBet();
+    HoldEmRaiseCallState evaluatePreflopState(const cardSetType &hand);
+    HoldEmRaiseCallState evaluatePostFlopState(const HoldEmGameStruct &currStruct);
+    HoldEmRaiseCallState evaluatePostTurnState(const HoldEmGameStruct &currStruct);
+    HoldEmRaiseCallState evaluatePostRiverState(const HoldEmGameStruct &currStruct);
+    HoldEmRaiseCallState evaluateFourCards(const HoldEmGameStruct &currStruct);
+
     HoldEmGameStruct findBestHand(const cardSetType &hand, std::string &givenPlayerName, size_t playerIdx);
     HoldEmHandRank holdem_hand_evaluation(const cardSetType &hand);
     bool isFlush(const std::vector<cardType> &cards);
