@@ -146,8 +146,22 @@ bool HoldEmGame::bet() {
     }
 
     addToPot();
-    std::cout << "Pot: " << commonPot << std::endl;
+    printRoundStats();
     return end;
+}
+
+void HoldEmGame::printRoundStats() {
+    std::cout << "----------Current round stats!----------" << std::endl;
+    for (size_t i = 0; i < players.size(); i++) {
+        std::cout << players[i] << ": ";
+        std::cout << "score: " << scores[i];
+        std::cout << ", bet: " << betChips[i];
+        std::cout << ", fold: " << foldState[i];
+        std::cout << ", call: " << callState[i];
+        std::cout << ", raise times: " << raiseTimes[i] << std::endl;
+    }
+    std::cout << "current pot: " << commonPot << std::endl;
+    std::cout << "" << std::endl;
 }
 
 void HoldEmGame::addToPot() {
@@ -185,8 +199,6 @@ void HoldEmGame::calculateScore() {
                 tempStructs.push_back(structs[i]);
             }
         }
-
-
         std::sort(tempStructs.begin(), tempStructs.end(), operator<);
         // Single best
         if (tempStructs[players.size() -1].rank != tempStructs[players.size() -2].rank) {
@@ -226,6 +238,7 @@ void HoldEmGame::calculateScore() {
     for (size_t i = 0; i < players.size(); i++) {
         std::cout << players[i] << " score: " << scores[i] << std::endl;
     }
+    std::cout << "" << std::endl;
     commonPot = 0;
 }
 
@@ -307,19 +320,10 @@ bool HoldEmGame::preflopBet() {
         }
 
         HoldEmRaiseCallState preflopState = evaluatePreflopState(hands[currPlayerIdx]);
-
-        std::cout << static_cast<int>(preflopState) << std::endl;
-
         actRaiseOrCall(preflopState, currPlayerIdx);
         if (preflopState == HoldEmRaiseCallState::foldOrCheck) {
             foldState[currPlayerIdx] = true;
             callState[currPlayerIdx] = true;
-        }
-
-        for (size_t i = 0; i < players.size(); i++) {
-            std::cout << players[i] << ": " << scores[i] << ", " << betChips[i];
-            std::cout << ", fo: " << foldState[i] << ", ca: " << callState[i];
-            std::cout << ", " << raiseTimes[i] << std::endl;
         }
 
         int evaluation = evaluateEndRoundOrGame();
@@ -362,20 +366,12 @@ bool HoldEmGame::postflopBet() {
             break;
         }
 
-        std::cout << static_cast<int>(postflopState) << std::endl;
-
         actRaiseOrCall(postflopState, currPlayerIdx);
         if (postflopState == HoldEmRaiseCallState::foldOrCheck) {
             if (std::reduce(raiseTimes.begin(), raiseTimes.end()) > 0) {
                 foldState[currPlayerIdx] = true;
             }
             callState[currPlayerIdx] = true;
-        }
-
-        for (size_t i = 0; i < players.size(); i++) {
-            std::cout << players[i] << ": " << scores[i] << ", " << betChips[i];
-            std::cout << ", fo: " << foldState[i] << ", ca: " << callState[i];
-            std::cout << ", " << raiseTimes[i] << std::endl;
         }
 
         int evaluation = evaluateEndRoundOrGame();

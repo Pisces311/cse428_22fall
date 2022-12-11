@@ -67,6 +67,7 @@ class HoldEmGame : public Game {
     void printHands();
     void printBoards();
     void printSortedHands();
+    void printRoundStats();
     void collectHands();
     void collectBoards();
 
