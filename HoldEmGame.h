@@ -83,7 +83,8 @@ class HoldEmGame : public Game {
                          HoldEmHandRank givenRank, size_t playerIdx)
             : cardSet(givenCardSet),
               playerName(givenPlayerName),
-              rank(givenRank), playerIdx(playerIdx) {}
+              rank(givenRank),
+              playerIdx(playerIdx) {}
     };
 
     HoldEmGame(int argc, const char **argv);
@@ -96,9 +97,12 @@ class HoldEmGame : public Game {
     int static sortPair(const cardSetType &hand1, const cardSetType &hand2);
     int static sortTwoPair(const cardSetType &hand1, const cardSetType &hand2);
     int static sortAnyThree(const cardSetType &hand1, const cardSetType &hand2);
-    int static sortAnyStraight(const cardSetType &hand1, const cardSetType &hand2);
-    int static sortFlushXhigh(const cardSetType &hand1, const cardSetType &hand2);
-    int static sortFourOfAKind(const cardSetType &hand1, const cardSetType &hand2);
+    int static sortAnyStraight(const cardSetType &hand1,
+                               const cardSetType &hand2);
+    int static sortFlushXhigh(const cardSetType &hand1,
+                              const cardSetType &hand2);
+    int static sortFourOfAKind(const cardSetType &hand1,
+                               const cardSetType &hand2);
 
     virtual ~HoldEmGame() = default;
     virtual int play();
@@ -107,21 +111,27 @@ class HoldEmGame : public Game {
     std::vector<HoldEmGameStruct> structs;
 
     bool endingGame();
-    void calculateScore();
+    bool calculateScore();
     int evaluateEndRoundOrGame();
     void processChips(const int &currPlayerIdx, const unsigned int &diffBet);
     void addToPot();
-    void actRaiseOrCall(const HoldEmRaiseCallState &raiseCallState, const int &currPlayerIdx);
+    void actRaiseOrCall(const HoldEmRaiseCallState &raiseCallState,
+                        const int &currPlayerIdx);
     bool bet();
     bool preflopBet();
     bool postflopBet();
     HoldEmRaiseCallState evaluatePreflopState(const cardSetType &hand);
-    HoldEmRaiseCallState evaluatePostFlopState(const HoldEmGameStruct &currStruct);
-    HoldEmRaiseCallState evaluatePostTurnState(const HoldEmGameStruct &currStruct);
-    HoldEmRaiseCallState evaluatePostRiverState(const HoldEmGameStruct &currStruct);
+    HoldEmRaiseCallState evaluatePostFlopState(
+        const HoldEmGameStruct &currStruct);
+    HoldEmRaiseCallState evaluatePostTurnState(
+        const HoldEmGameStruct &currStruct);
+    HoldEmRaiseCallState evaluatePostRiverState(
+        const HoldEmGameStruct &currStruct);
     HoldEmRaiseCallState evaluateFourCards(const HoldEmGameStruct &currStruct);
 
-    HoldEmGameStruct findBestHand(const cardSetType &hand, std::string &givenPlayerName, size_t playerIdx);
+    HoldEmGameStruct findBestHand(const cardSetType &hand,
+                                  std::string &givenPlayerName,
+                                  size_t playerIdx);
     HoldEmHandRank holdem_hand_evaluation(const cardSetType &hand);
     bool isFlush(const std::vector<cardType> &cards);
     bool isStraight(const std::vector<cardType> &cards);
@@ -136,4 +146,4 @@ std::ostream &operator<<(std::ostream &os, const HoldEmHandRank &rank);
 bool operator<(const HoldEmGame::HoldEmGameStruct &obj1,
                const HoldEmGame::HoldEmGameStruct &obj2);
 int operaterHelper(const HoldEmGame::HoldEmGameStruct &obj1,
-               const HoldEmGame::HoldEmGameStruct &obj2);
+                   const HoldEmGame::HoldEmGameStruct &obj2);
