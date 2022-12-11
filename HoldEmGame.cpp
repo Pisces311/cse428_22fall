@@ -62,8 +62,14 @@ void HoldEmGame::printSortedHands() {
         for (size_t j = 0; j < (commonBoards.*cards).size(); j++) {
             ((structs[i].cardSet).*cards).push_back((commonBoards.*cards)[j]);
         }
-        structs[i].rank = holdem_hand_evaluation(structs[i].cardSet);
+        if (((structs[i].cardSet).*cards).size() >= numCardsAfterTurn) {
+            structs[i] = findBestHand(structs[i].cardSet, structs[i].playerName, structs[i].playerIdx);
+        }
+        else {
+            structs[i].rank = holdem_hand_evaluation(structs[i].cardSet);
+        }
     }
+
     // sort by player's cardset rank
     std::sort(structs.begin(), structs.end(), operator<);
     std::reverse(structs.begin(), structs.end());
@@ -80,6 +86,40 @@ void HoldEmGame::printSortedHands() {
         std::cout << "(" << structs[i].rank << ")" << std::endl;
     }
     std::cout << "" << std::endl;
+}
+
+HoldEmGame::HoldEmGameStruct HoldEmGame::findBestHand(const cardSetType &hand, 
+        std::string &givenPlayerName, size_t playerIdx) {
+    std::vector<cardType> cardSetType::*cards = cardSetType::getCards();
+    size_t numCards = (hand.*cards).size();
+    std::vector<HoldEmGameStruct> structs;
+
+    // get all combinations of hand
+    if (numCards == numCardsAfterTurn) {
+        for (size_t i = 0; i < numCards; i++) {
+            cardSetType handCopy = hand;
+            // remove 1 card from all 6 cards
+            (handCopy.*cards).erase((handCopy.*cards).begin() + i);
+            HoldEmHandRank rank = holdem_hand_evaluation(handCopy);
+            structs.emplace_back(handCopy, givenPlayerName, rank, playerIdx);
+        }
+    }
+    else if (numCards == numCardsAfterRiver) {
+        for (size_t i = 0; i < numCards-1; i++) {
+            for (size_t j = i+1; j < numCards; j++) {
+                cardSetType handCopy = hand;
+                // remove 2 cards from all 6 cards
+                (handCopy.*cards).erase((handCopy.*cards).begin() + i);
+                (handCopy.*cards).erase((handCopy.*cards).begin() + (j-1));
+                HoldEmHandRank rank = holdem_hand_evaluation(handCopy);
+                structs.emplace_back(handCopy, givenPlayerName, rank, playerIdx);
+            }
+        }
+    }
+    // get the best hand for current player
+    std::sort(structs.begin(), structs.end(), operator<);
+    HoldEmGameStruct bestHand = structs.back();
+    return bestHand;
 }
 
 void HoldEmGame::collectHands() {
@@ -107,9 +147,13 @@ int HoldEmGame::play() {
         std::cout << "BOARD(turn): " << std::endl;
         printBoards();
 
+        printSortedHands();
+
         deal();
         std::cout << "BOARD(river): " << std::endl;
         printBoards();
+
+        printSortedHands();
 
         collectHands();
         collectBoards();

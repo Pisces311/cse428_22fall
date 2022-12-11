@@ -35,6 +35,8 @@ class HoldEmGame : public Game {
     const size_t numCommonBoardsBatch = 3;
     const size_t numPlayerHands = 2;
     const size_t numFinalHands = 5;
+    const size_t numCardsAfterTurn = 6;
+    const size_t numCardsAfterRiver = 7;
 
     virtual void deal();
     void printHands();
@@ -69,6 +71,9 @@ class HoldEmGame : public Game {
 
     virtual ~HoldEmGame() = default;
     virtual int play();
+
+   protected:
+    HoldEmGameStruct findBestHand(const cardSetType &hand, std::string &givenPlayerName, size_t playerIdx);
 
    private:
     HoldEmHandRank holdem_hand_evaluation(const cardSetType &hand);
