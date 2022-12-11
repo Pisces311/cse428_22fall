@@ -72,10 +72,8 @@ class HoldEmGame : public Game {
     virtual ~HoldEmGame() = default;
     virtual int play();
 
-   protected:
-    HoldEmGameStruct findBestHand(const cardSetType &hand, std::string &givenPlayerName, size_t playerIdx);
-
    private:
+    HoldEmGameStruct findBestHand(const cardSetType &hand, std::string &givenPlayerName, size_t playerIdx);
     HoldEmHandRank holdem_hand_evaluation(const cardSetType &hand);
     bool isFlush(const std::vector<cardType> &cards);
     bool isStraight(const std::vector<cardType> &cards);
