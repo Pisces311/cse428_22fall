@@ -82,6 +82,7 @@ class PinochleGame : public Game {
     void addScore(int winnerTeam, const cardSetType& trick);
 
     int hasWinner();
+    void printTrick(const cardSetType& trick);
 };
 
 std::ostream& operator<<(std::ostream& os, const PinochleMelds& meld);

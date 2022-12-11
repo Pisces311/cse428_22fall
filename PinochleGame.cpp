@@ -51,7 +51,6 @@ void PinochleGame::printHands() {
         }
         std::cout << std::endl;
     }
-    std::cout << "Trump suit: " << trump_suit << std::endl;
 }
 
 void PinochleGame::collectHands() {
@@ -247,6 +246,15 @@ bool PinochleGame::compareCards(const cardType& card1, const cardType& card2,
     }
 }
 
+void PinochleGame::printTrick(const cardSetType& trick) {
+    std::vector<cardType> cardSetType::*ptr = cardSetType::getCards();
+    std::cout << "Trick: ";
+    for (const cardType& card : trick.*ptr) {
+        std::cout << card << " ";
+    }
+    std::cout << std::endl;
+}
+
 // return the winner of this round
 int PinochleGame::playTrick(cardSetType& trick) {
     std::vector<cardType> cardSetType::*ptr = cardSetType::getCards();
@@ -291,6 +299,8 @@ int PinochleGame::playTrick(cardSetType& trick) {
         std::cout << "player " << players[playerIdx];
         if (playerIdx == dealer) std::cout << "*";
         std::cout << " played " << (trick.*ptr).back() << std::endl;
+
+        printTrick(trick);
 
         playerIdx = (playerIdx + 1) % players.size();
     } while (playerIdx != firstPlayer);
@@ -359,6 +369,7 @@ int PinochleGame::play() {
         deck.shuffle();
         deal();
         printHands();
+        std::cout << "Trump suit: " << trump_suit << std::endl;
         std::vector<unsigned int> bids(players.size());
         if (!bidding(bids)) {
             std::cout << "Bidding failed. Re-dealing." << std::endl;
