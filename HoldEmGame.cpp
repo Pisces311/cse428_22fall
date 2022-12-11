@@ -168,13 +168,65 @@ void HoldEmGame::processChips(const int &currPlayerIdx, const unsigned int &diff
     }
 }
 
-// TODO: Split pots
 // TODO: Remove player with 0 scores after split pots
 void HoldEmGame::calculateScore() {
-    // for (size_t i = 0; i < players.size(); i++) {
-        
-    // }
     std::cout << "----------Calculating scores!----------" << std::endl;
+    if (state == HoldEmState::flop) {
+        for (size_t i = 0; i < players.size(); i++) {
+            if (!foldState[i]) {
+                scores[i] += commonPot;
+            }
+        }
+    }
+    else {
+        std::vector<HoldEmGameStruct> tempStructs;
+        for (size_t i = 0; i < players.size(); i++) {
+            if (!foldState[i]) {
+                tempStructs.push_back(structs[i]);
+            }
+        }
+
+
+        std::sort(tempStructs.begin(), tempStructs.end(), operator<);
+        // Single best
+        if (tempStructs[players.size() -1].rank != tempStructs[players.size() -2].rank) {
+            size_t bestPlayeridx = tempStructs.back().playerIdx;
+            scores[bestPlayeridx] += commonPot;
+        } // multiple best
+        else {
+            // get the number of multiple best players
+            int i;
+            for (i = tempStructs.size() - 1; i > 0; i--) {
+                if (operaterHelper(tempStructs[i-1], tempStructs[i]) != equalRank) {
+                    break;
+                }
+            }
+            int numMultipleBest = tempStructs.size() - i;
+            int splitPot = commonPot / numMultipleBest;
+            int remainPot = commonPot % numMultipleBest;
+            // split and get their idx
+            std::vector<size_t> multiplePlayerIdx;
+            for (size_t j = i; j < tempStructs.size(); j++) {
+                scores[tempStructs[j].playerIdx] += splitPot;
+                multiplePlayerIdx.push_back(tempStructs[j].playerIdx);
+            }
+            // find the earlier player idx and add remain pot to the player
+            for (size_t i = 1; i < players.size() + 1; i++) {
+                size_t nextIdx = (dealer + i) % players.size();
+                auto it = std::find(multiplePlayerIdx.begin(), multiplePlayerIdx.end(), nextIdx);
+                if (it != multiplePlayerIdx.end()) {
+                    int idx = it - multiplePlayerIdx.begin();
+                    size_t earlierPlayerIdx = multiplePlayerIdx[idx];
+                    scores[earlierPlayerIdx] += remainPot;
+                    break;
+                }
+            } 
+        }
+    }
+    for (size_t i = 0; i < players.size(); i++) {
+        std::cout << players[i] << " score: " << scores[i] << std::endl;
+    }
+    commonPot = 0;
 }
 
 int HoldEmGame::evaluateEndRoundOrGame() {
@@ -641,13 +693,18 @@ std::ostream &operator<<(std::ostream &os, const HoldEmHandRank &rank) {
 
 bool operator<(const HoldEmGame::HoldEmGameStruct &obj1,
                const HoldEmGame::HoldEmGameStruct &obj2) {
+    return operaterHelper(obj1, obj2) == HoldEmGame::lowerThan;
+}
+
+int operaterHelper(const HoldEmGame::HoldEmGameStruct &obj1, 
+        const HoldEmGame::HoldEmGameStruct &obj2) {
     using cardType = Card<HoldEmRank, Suit>;
     using cardSetType = CardSet<HoldEmRank, Suit>;
 
     if (obj1.rank < obj2.rank) {
-        return true;
+        return HoldEmGame::lowerThan;
     } else if (obj1.rank > obj2.rank) {
-        return false;
+        return HoldEmGame::higherThan;
     }
 
     cardSetType hand1 = obj1.cardSet;
@@ -695,10 +752,10 @@ bool operator<(const HoldEmGame::HoldEmGameStruct &obj1,
         return HoldEmGame::sortFourOfAKind(hand1, hand2);
     }
 
-    return false;
+    return HoldEmGame::compareFail;
 }
 
-bool HoldEmGame::sortPair(const cardSetType &hand1, const cardSetType &hand2) {
+int HoldEmGame::sortPair(const cardSetType &hand1, const cardSetType &hand2) {
     std::vector<cardType> cardSetType::*cards = cardSetType::getCards();
     cardSetType handCopy1 = hand1;
     cardSetType handCopy2 = hand2;
@@ -722,25 +779,24 @@ bool HoldEmGame::sortPair(const cardSetType &hand1, const cardSetType &hand2) {
     }
     // compare pair rank
     if (pairRank1 < pairRank2) {
-        return true;
+        return HoldEmGame::lowerThan;
     } else if (pairRank1 > pairRank2) {
-        return false;
+        return HoldEmGame::higherThan;
     }
     // compare other cards rank from high to low
     else {
         for (size_t i = 0; i < (handCopy1.*cards).size(); i++) {
             if ((handCopy1.*cards)[i].rank < (handCopy2.*cards)[i].rank) {
-                return true;
-            } else if ((handCopy1.*cards)[i].rank >
-                       (handCopy2.*cards)[i].rank) {
-                return false;
+                return HoldEmGame::lowerThan;
+            } else if ((handCopy1.*cards)[i].rank > (handCopy2.*cards)[i].rank) {
+                return HoldEmGame::higherThan;
             }
         }
     }
-    return false;
+    return HoldEmGame::equalRank;
 }
 
-bool HoldEmGame::sortTwoPair(const cardSetType &hand1,
+int HoldEmGame::sortTwoPair(const cardSetType &hand1,
                              const cardSetType &hand2) {
     std::vector<cardType> cardSetType::*cards = cardSetType::getCards();
     // get the two pairs rank
@@ -756,9 +812,9 @@ bool HoldEmGame::sortTwoPair(const cardSetType &hand1,
     // compare pair ranks from high to low
     for (size_t i = 0; i < pairRank1.size(); i++) {
         if (pairRank1[i] < pairRank2[i]) {
-            return true;
+            return HoldEmGame::lowerThan;
         } else if (pairRank1[i] > pairRank2[i]) {
-            return false;
+            return HoldEmGame::higherThan;
         }
     }
     // get the other card
@@ -775,12 +831,15 @@ bool HoldEmGame::sortTwoPair(const cardSetType &hand1,
     }
     // compare the other card rank
     if (nonPairRank1 < nonPairRank2) {
-        return true;
+        return HoldEmGame::lowerThan;
     }
-    return false;
+    else if (nonPairRank1 > nonPairRank2) {
+        return HoldEmGame::higherThan;
+    }
+    return HoldEmGame::equalRank;
 }
 
-bool HoldEmGame::sortAnyThree(const cardSetType &hand1,
+int HoldEmGame::sortAnyThree(const cardSetType &hand1,
                               const cardSetType &hand2) {
     std::vector<cardType> cardSetType::*cards = cardSetType::getCards();
     // get the three of a kind rank
@@ -797,34 +856,39 @@ bool HoldEmGame::sortAnyThree(const cardSetType &hand1,
     }
     // compare pair rank
     if (pairRank1 < pairRank2) {
-        return true;
+        return HoldEmGame::lowerThan;
     }
-    return false;
+    else if (pairRank1 > pairRank2) {
+        return HoldEmGame::higherThan;
+    }
+    return HoldEmGame::equalRank;
 }
 
-bool HoldEmGame::sortAnyStraight(const cardSetType &hand1,
+int HoldEmGame::sortAnyStraight(const cardSetType &hand1,
                                  const cardSetType &hand2) {
     std::vector<cardType> cardSetType::*cards = cardSetType::getCards();
     if ((hand1.*cards)[0].rank < (hand2.*cards)[0].rank) {
-        return true;
+        return HoldEmGame::lowerThan;
     }
-    return false;
+    else if ((hand1.*cards)[0].rank > (hand2.*cards)[0].rank) {
+        return HoldEmGame::higherThan;
+    }
+    return HoldEmGame::equalRank;
 }
 
-bool HoldEmGame::sortFlushXhigh(const cardSetType &hand1,
+int HoldEmGame::sortFlushXhigh(const cardSetType &hand1,
                                 const cardSetType &hand2) {
     std::vector<cardType> cardSetType::*cards = cardSetType::getCards();
     for (size_t i = 0; i < (hand1.*cards).size(); i++) {
         if ((hand1.*cards)[i].rank < (hand2.*cards)[i].rank) {
-            return true;
+            return HoldEmGame::lowerThan;
         } else if ((hand1.*cards)[i].rank > (hand2.*cards)[i].rank) {
-            return false;
+            return HoldEmGame::higherThan;
         }
     }
-    return false;
+    return HoldEmGame::equalRank;
 }
-
-bool HoldEmGame::sortFourOfAKind(const cardSetType &hand1,
+int HoldEmGame::sortFourOfAKind(const cardSetType &hand1,
                                  const cardSetType &hand2) {
     std::vector<cardType> cardSetType::*cards = cardSetType::getCards();
     // get pair
@@ -832,7 +896,10 @@ bool HoldEmGame::sortFourOfAKind(const cardSetType &hand1,
     HoldEmRank pairRank2 = (hand2.*cards)[1].rank;
     // compare pair rank
     if (pairRank1 < pairRank2) {
-        return true;
+        return HoldEmGame::lowerThan;
     }
-    return false;
+    else if (pairRank1 > pairRank2) {
+        return HoldEmGame::higherThan;
+    }
+    return HoldEmGame::equalRank;
 }

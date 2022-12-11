@@ -87,12 +87,17 @@ class HoldEmGame : public Game {
 
     HoldEmGame(int argc, const char **argv);
 
-    bool static sortPair(const cardSetType &hand1, const cardSetType &hand2);
-    bool static sortTwoPair(const cardSetType &hand1, const cardSetType &hand2);
-    bool static sortAnyThree(const cardSetType &hand1, const cardSetType &hand2);
-    bool static sortAnyStraight(const cardSetType &hand1, const cardSetType &hand2);
-    bool static sortFlushXhigh(const cardSetType &hand1, const cardSetType &hand2);
-    bool static sortFourOfAKind(const cardSetType &hand1, const cardSetType &hand2);
+    const static int compareFail = -2;
+    const static int equalRank = -1;
+    const static int lowerThan = 1;
+    const static int higherThan = 0;
+
+    int static sortPair(const cardSetType &hand1, const cardSetType &hand2);
+    int static sortTwoPair(const cardSetType &hand1, const cardSetType &hand2);
+    int static sortAnyThree(const cardSetType &hand1, const cardSetType &hand2);
+    int static sortAnyStraight(const cardSetType &hand1, const cardSetType &hand2);
+    int static sortFlushXhigh(const cardSetType &hand1, const cardSetType &hand2);
+    int static sortFourOfAKind(const cardSetType &hand1, const cardSetType &hand2);
 
     virtual ~HoldEmGame() = default;
     virtual int play();
@@ -128,4 +133,6 @@ class HoldEmGame : public Game {
 
 std::ostream &operator<<(std::ostream &os, const HoldEmHandRank &rank);
 bool operator<(const HoldEmGame::HoldEmGameStruct &obj1,
+               const HoldEmGame::HoldEmGameStruct &obj2);
+int operaterHelper(const HoldEmGame::HoldEmGameStruct &obj1,
                const HoldEmGame::HoldEmGameStruct &obj2);
