@@ -167,7 +167,7 @@ bool PinochleGame::playHighestCard(std::vector<cardType>& trickCards,
     }
 
     for (const cardType& card : trickCards) {
-        if (card.suit == suit && card.rank > highestRank) {
+        if (card.suit == suit && card.rank >= highestRank) {
             return false;
         }
     }
@@ -265,6 +265,8 @@ int PinochleGame::playTrick(cardSetType& trick) {
     std::cout << "player " << players[firstPlayer];
     if (firstPlayer == dealer) std::cout << "*";
     std::cout << " played " << (trick.*ptr).back() << std::endl;
+
+    printTrick(trick);
 
     size_t playerIdx = (firstPlayer + 1) % players.size();
     do {
