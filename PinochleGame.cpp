@@ -130,7 +130,7 @@ bool PinochleGame::bidding(std::vector<unsigned int>& bids) {
 
 Suit PinochleGame::playFirstCard(std::vector<cardType>& trickCards,
                                  std::vector<cardType>& cards) {
-    Suit retSuit;
+    Suit retSuit = Suit::clubs;
     PinochleRank highestRank = PinochleRank::nine;
     for (const cardType& card : cards) {
         if (card.rank > highestRank) {
@@ -159,6 +159,10 @@ Suit PinochleGame::playFirstCard(std::vector<cardType>& trickCards,
 // card in the trick of the given suit
 bool PinochleGame::playHighestCard(std::vector<cardType>& trickCards,
                                    std::vector<cardType>& cards, Suit suit) {
+    if (!hasSuit(cards, suit)) {
+        return false;
+    }
+
     PinochleRank highestRank = PinochleRank::nine;
     for (const cardType& card : cards) {
         if (card.suit == suit && card.rank > highestRank) {
@@ -325,8 +329,15 @@ int PinochleGame::playTrick(cardSetType& trick) {
 }
 
 void PinochleGame::addScore(int winnerTeam, const cardSetType& trick) {
+    std::cout << std::endl;
     if (winnerTeam == contractTeam) {
-        runningTally += computeCards(trick);
+        int score = computeCards(trick);
+        std::cout << "Contract team won " << score << " points" << std::endl;
+        runningTally += score;
+        std::cout << "Running tally: " << runningTally << std::endl;
+    } else {
+        std::cout << "Contract team failed, no points earned" << std::endl;
+        std::cout << "Running tally: " << runningTally << std::endl;
     }
 }
 
