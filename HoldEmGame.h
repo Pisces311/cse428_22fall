@@ -114,6 +114,7 @@ class HoldEmGame : public Game {
     bool calculateScore();
     int evaluateEndRoundOrGame();
     void processChips(const int &currPlayerIdx, const unsigned int &diffBet);
+    void processRemainPot(const std::vector<size_t> &multiplePlayerIdx, const int &remainPot);
     void addToPot();
     void actRaiseOrCall(const HoldEmRaiseCallState &raiseCallState,
                         const int &currPlayerIdx);

@@ -183,12 +183,41 @@ void HoldEmGame::processChips(const int &currPlayerIdx,
     }
 }
 
+void HoldEmGame::processRemainPot(const std::vector<size_t> &multiplePlayerIdx, const int &remainPot) {
+    for (size_t i = 1; i < players.size() + 1; i++) {
+        size_t nextIdx = (dealer + i) % players.size();
+        auto it = std::find(multiplePlayerIdx.begin(),
+                            multiplePlayerIdx.end(), nextIdx);
+        if (it != multiplePlayerIdx.end()) {
+            int idx = it - multiplePlayerIdx.begin();
+            size_t earlierPlayerIdx = multiplePlayerIdx[idx];
+            scores[earlierPlayerIdx] += remainPot;
+            break;
+        }
+    }
+}
+
 bool HoldEmGame::calculateScore() {
     std::cout << "----------Calculating scores!----------" << std::endl;
     if (state == HoldEmState::flop) {
-        for (size_t i = 0; i < players.size(); i++) {
-            if (!foldState[i]) {
-                scores[i] += commonPot;
+        // End because only one unfold player
+        if (std::count(foldState.begin(), foldState.end(), false) == 1) {
+            auto it = std::find(foldState.begin(), foldState.end(), false);
+            scores[it - foldState.begin()] += commonPot;
+        } // end because all unfold player reach score 0
+        else {
+            int numUnfoldPlayers = std::count(foldState.begin(), foldState.end(), false);
+            int splitPot = commonPot / numUnfoldPlayers;
+            int remainPot = commonPot % numUnfoldPlayers;
+            std::vector<size_t> multiplePlayerIdx;
+            for (size_t i = 0; i < players.size(); i++) {
+                if (!foldState[i]) {
+                    scores[i] += splitPot;
+                    multiplePlayerIdx.push_back(i);
+                }
+            }
+            if (remainPot > 0) {
+                processRemainPot(multiplePlayerIdx, remainPot);
             }
         }
     } else {
@@ -224,16 +253,8 @@ bool HoldEmGame::calculateScore() {
                 multiplePlayerIdx.push_back(tempStructs[j].playerIdx);
             }
             // find the earlier player idx and add remain pot to the player
-            for (size_t i = 1; i < players.size() + 1; i++) {
-                size_t nextIdx = (dealer + i) % players.size();
-                auto it = std::find(multiplePlayerIdx.begin(),
-                                    multiplePlayerIdx.end(), nextIdx);
-                if (it != multiplePlayerIdx.end()) {
-                    int idx = it - multiplePlayerIdx.begin();
-                    size_t earlierPlayerIdx = multiplePlayerIdx[idx];
-                    scores[earlierPlayerIdx] += remainPot;
-                    break;
-                }
+            if (remainPot > 0) {
+                processRemainPot(multiplePlayerIdx, remainPot);
             }
         }
     }
@@ -251,7 +272,22 @@ bool HoldEmGame::calculateScore() {
     if (!bustedOut.empty()) {
         std::cout << "----------Busted out players!----------" << std::endl;
         for (size_t i = 0; i < bustedOut.size(); i++) {
-            std::cout << players[bustedOut[i]] << std::endl;
+            int placeIdx = players.size();
+            std::string suffix;
+            if (placeIdx > 3) {
+                suffix = "th";
+            }
+            else if (placeIdx == 3) {
+                suffix = "rd";
+            }
+            else if (placeIdx == 2) {
+                suffix = "nd";
+            }
+            else {
+                suffix = "st";
+            }
+            std::cout << players[bustedOut[i]] << ": ";
+            std::cout << placeIdx << suffix << " place" << std::endl;
         }
         std::cout << std::endl;
 
@@ -263,7 +299,7 @@ bool HoldEmGame::calculateScore() {
     }
 
     if (players.size() == 1) {
-        std::cout << "----------Winner is " << players[0] << "!----------"
+        std::cout << "----------Winner is ***" << players[0] << "***!----------"
                   << std::endl;
         std::cout << "Final chips: " << scores[0] << std::endl;
         std::cout << std::endl;
@@ -329,20 +365,19 @@ void HoldEmGame::actRaiseOrCall(const HoldEmRaiseCallState &raiseCallState,
     }
 }
 
-// FIXME: player with 0 scores(unsigned int) will overflow (small/big blind),
-// can be fixed after finish calculate score func (remove 0 score players)
 bool HoldEmGame::preflopBet() {
     commonPot = 0;
     foldState.assign(players.size(), false);
     callState = foldState;
-    int smallBlindIdx = (dealer + 1) % players.size();
-    int bigBlindIdx = (smallBlindIdx + 1) % players.size();
-    betChips[smallBlindIdx] = smallBlindBet;
-    betChips[bigBlindIdx] = bigBlindBet;
-    scores[smallBlindIdx] -= smallBlindBet;
-    scores[bigBlindIdx] -= bigBlindBet;
-    int currPlayerIdx = (bigBlindIdx + 1) % players.size();
 
+    int smallBlindIdx = (dealer + 1) % players.size();
+    betChips[smallBlindIdx] = smallBlindBet;
+    scores[smallBlindIdx] -= smallBlindBet;
+
+    int bigBlindIdx = (smallBlindIdx + 1) % players.size();
+    processChips(bigBlindIdx, bigBlindBet);
+
+    int currPlayerIdx = (bigBlindIdx + 1) % players.size();
     while (true) {
         if (foldState[currPlayerIdx] || scores[currPlayerIdx] == 0) {
             callState[currPlayerIdx] = true;
@@ -526,6 +561,7 @@ int HoldEmGame::play() {
     while (true) {
         deck.shuffle();
         state = HoldEmState::preflop;
+        std::cout << "----------------------New game!----------------------" << std::endl;
         deal();  // state: flop
         printHands();
         if (bet()) {
