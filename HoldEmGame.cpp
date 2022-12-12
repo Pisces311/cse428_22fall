@@ -433,7 +433,7 @@ bool HoldEmGame::postflopBet() {
 
         actRaiseOrCall(postflopState, currPlayerIdx);
         if (postflopState == HoldEmRaiseCallState::foldOrCheck) {
-            if (std::reduce(raiseTimes.begin(), raiseTimes.end()) > 0) {
+            if (std::accumulate(raiseTimes.begin(), raiseTimes.end(), 0) > 0) {
                 foldState[currPlayerIdx] = true;
             }
             callState[currPlayerIdx] = true;
